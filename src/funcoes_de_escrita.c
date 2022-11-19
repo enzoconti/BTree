@@ -124,3 +124,52 @@ void printa_registro(reg_dados* reg){
     if(reg->velocidade != -1) printf("Velocidade de transmissao: %d %sbps\n", reg->velocidade, reg->unidadeMedida);
     printf("\n");
 }
+
+int insere_registro_dados(FILE* arquivo_entrada, reg_cabecalho *h,reg_dados* rd){
+    int byte_offset, num_registros_total;
+    int byteoffset_written;
+     // verifica se topo é -1, se é -1, então não há registros removidos
+    if(h->topo == -1){
+      byte_offset = TAM_PAG_DISCO + ((h->proxRRN) * TAM_REG_DADOS);
+      fseek(arquivo_entrada, byte_offset, SEEK_SET);//vai para nova posição
+      byteoffset_written = byte_offset;
+      escrever_no_arquivo_dados(arquivo_entrada, rd);
+      h->proxRRN++;
+      num_registros_total = (ftell(arquivo_entrada) - TAM_PAG_DISCO)/TAM_REG_DADOS;
+    }
+    else if(h->topo != -1){//há registros removidos
+
+
+      byte_offset = TAM_PAG_DISCO + ((h->topo) * TAM_REG_DADOS);
+      fseek(arquivo_entrada, byte_offset, SEEK_SET);
+
+      fread(rd->removido, sizeof(char), 1, arquivo_entrada);
+      rd->removido[1] = '\0';
+
+
+      if(checa_remocao(rd) == 0){ // se o registro estiver removido
+        fread(&rd->encadeamento, sizeof(int), 1, arquivo_entrada); // pega o encadeamento, isto é, novo espaço livre
+        h->topo = rd->encadeamento;     // desempilha no topo
+        fseek(arquivo_entrada, -5, SEEK_CUR); // volta pro início do registro
+        rd->removido[0] = '0';    // retorna status de não removido
+        rd->encadeamento = -1; //reseta o encadeamento
+        h->nroRegRem--;
+        byteoffset_written = ftell(arquivo_entrada);
+        escrever_no_arquivo_dados(arquivo_entrada, rd);
+      }
+      else{ // se registro não estiver removido, erro
+        free(rd);
+        free(h);
+        fclose(arquivo_entrada);
+        return;
+      }
+    }
+
+    if(num_registros_total != 0){
+   h->nroPagDisco = calcula_pag_disco(num_registros_total);
+  }
+
+    strcpy(h->status, "1");
+
+    return (byteoffset_written - TAM_PAG_DISCO)/TAM_REG_DADOS;
+}

@@ -56,15 +56,15 @@ typedef struct reg_dados_indice{
     int nroChavesNo;
     int alturaNo;
     int RRNdoNo;
-    int ponteiroSubarvore[5];
-    int chaveBusca[4];
-    int RRNdoRegistro[4];
+    int ponteiroSubarvore[ORDEM_ARVORE_B];
+    int chaveBusca[ORDEM_ARVORE_B-1];
+    int RRNdoRegistro[ORDEM_ARVORE_B-1];
 }reg_dados_indice;
 
 /*
 
 Definição de uma estrutura do registro de cabeçalho, com os campos definidos conforme especificações. O campo "status",
-que contém apenas um caractér que pode assumir '0' ou '1', é inicializado com 2 bytes para armazenamento do caracter '\0',
+que contém apenas um caracter que pode assumir '0' ou '1', é inicializado com 2 bytes para armazenamento do caracter '\0',
 para controle interno do programa.
 
 */

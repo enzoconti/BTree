@@ -9,6 +9,8 @@
 #include "funcoes_de_escrita.h"
 #include "funcoes_de_leitura.h"
 #include "funcoes_fornecidas.h"
+#include "btree.h"
+#include "btree_rw_e_io.h"
 
 void comando1(char*, char* );
 void comando2(char*);

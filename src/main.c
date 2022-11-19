@@ -35,6 +35,18 @@ int main(){
         case 6:
             comando6(nome_do_arquivo_entrada);
             break;
+        case 7:
+            comando7();
+            break;
+        case 8:
+            comando8();
+            break;
+        case 9:
+            comando9();
+            break;
+        case 10:
+            comando10();
+            break;
     }
     return 0;
 }

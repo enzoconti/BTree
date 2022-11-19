@@ -10,6 +10,7 @@ void escrever_no_arquivo_dados(FILE*, reg_dados*);
 void escrever_no_arquivo_cabecalho(FILE*, reg_cabecalho*);
 void escrever_no_arquivo_cabecalho_arvore(FILE* arquivo, reg_cabecalho_arvore* reg);
 void atualizar_reg_cabecalho(reg_cabecalho*, FILE*, int*);
+int insere_registro_dados(FILE* arquivo_entrada, reg_cabecalho *h,reg_dados* rd);
 
 //escreve na tela
 void printa_registro(reg_dados*);

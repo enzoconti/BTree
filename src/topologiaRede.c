@@ -77,8 +77,13 @@ reg_dados_indice* cria_registro_dados_indice(){
     strcpy(novo_reg->folha, "1");
     novo_reg->nroChavesNo = 0;
     novo_reg->alturaNo = 1;
-    novo_reg->RRNdoNo = 0;
-    novo_reg->ponteiroSubarvore[ORDEM_ARVORE_B];
-    novo_reg->chaveBusca[ORDEM_ARVORE_B - 1];
-    novo_reg->RRNdoRegistro[ORDEM_ARVORE_B - 1];
+    novo_reg->RRNdoNo = -1;
+
+    novo_reg->ponteiroSubarvore[0] = -1;
+    for(int i=0;i<ORDEM_ARVORE_B-1;i++){
+        novo_reg->ponteiroSubarvore[i+1] = -1;
+        novo_reg->chaveBusca[i] = -1;
+        novo_reg->RRNdoRegistro[i] = -1;
+    }
 }
+    
