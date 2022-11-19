@@ -195,14 +195,20 @@ void split(int key, int data_rrn, int* upkey, int* updata_rrn, int*upchild, reg_
 }
 
 int busca_na_pagina(int key,int* pos, reg_dados_indice* r){
+    int i=0;
     // a posicao onde deveria estar ou esta eh antes da primeira chave maior do que a chave buscada
-    for(int i=0;i<r->nroChavesNo-1;i++){
+    for(i=0;i<r->nroChavesNo;i++){
         if(key < r->chaveBusca[i]){
             *pos = i;
 
             if(r->chaveBusca[*pos] == key) return ENCONTRADO;
             else return NAO_ENCONTRADO;
         }
+    }
+
+    if( i == r->nroChavesNo){ // isso significa que nao encontrou nenhuma chave maior que ela
+        *pos = i; // deveria estar por ultimo (no caso de a pagina ja estar cheia, isso estara fora dos array bounds e indica pagina cheia)
+        return NAO_ENCONTRADO;
     }
 }
 
