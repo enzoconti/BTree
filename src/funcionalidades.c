@@ -109,8 +109,7 @@ void comando3(char *nome_do_arquivo_entrada)
 {
 
   FILE *arquivo_entrada = abrir_leitura_binario(nome_do_arquivo_entrada);
-  if (arquivo_entrada == NULL)
-    return;
+  if (arquivo_entrada == NULL) return;
 
   int num_buscas = 0;
   int pos_campo = -1;
@@ -431,9 +430,125 @@ void comando6(char *nome_do_arquivo_entrada)
   }
 }
 
+void comando8(){
+
+  char *nome_arquivo_dados, *nome_arquivo_indice;
+
+  FILE* arquivo_dados = abrir_leitura_binario(nome_arquivo_dados);
+  if(arquivo_dados == NULL) return;
+  FILE* arquivo_indice = abrir_leitura_binario(nome_arquivo_indice);
+  if(arquivo_indice == NULL) return;
+
+  int num_buscas = 0;
+  int pos_campo = -1;
+  char buffer[24]; // buffer de string para o campo recebido
+  int valor = 0;   // buffer de inteiro para o campo recebido
+  int num_registros_encontrados = 0;
+
+  scanf("%s", nome_arquivo_dados);
+  scanf("%s", nome_arquivo_indice);
+  scanf("%d", &num_buscas);
+
+  reg_dados *novo_reg_dados = cria_registro_dados();
+  reg_cabecalho *novo_reg_cabecalho = cria_registro_cabecalho();
+  reg_cabecalho_arvore *novo_reg_cabecalho_arvore = cria_registro_cabecalho_arvore();
+
+  ler_reg_cabecalho(arquivo_dados, novo_reg_cabecalho);
+
+  if (checa_consistencia(novo_reg_cabecalho) != 0){
+    free(novo_reg_dados);
+    free(novo_reg_cabecalho);
+    fclose(arquivo_dados);
+    return;
+  }
+
+  for (int i = 0; i < num_buscas; i++){ // enquanto as buscas não acabarem
+    printf("Busca %d\n", (i + 1));
+    pos_campo = ler_campo();
+
+    if(pos_campo == 0){//usa arquivo de indice
+      int* pos;//posicao no arquivo de indice
+      int* rrn_found;//rrn encontrado
+
+      scanf("%d", &valor);
+      num_registros_encontrados = 0;
+
+      int flag_retorno = busca_arvore(novo_reg_cabecalho_arvore, pos, rrn_found, valor, arquivo_indice);
+      if(flag_retorno != 0){//encontrou registro
+        fseek(arquivo_dados, TAM_PAG_DISCO + (*rrn_found)*TAM_REG_DADOS, SEEK_SET);
+        le_registro(novo_reg_dados, arquivo_dados);
+        if (novo_reg_dados->removido[0] != '1') printa_registro(novo_reg_dados);
+        num_registros_encontrados++;
+      }
+      else printf("Registro inexistente.\n\n");
+    }
+    else if (pos_campo == 2 || pos_campo == 4){// se for um campo de inteiro
+
+      int num_RRN = -1; // necessário para argumento da função le_arquivo
+      scanf("%d", &valor);
+      num_registros_encontrados = 0; // reseta contador para nova busca
+      while (true)
+      {
+        if (le_arquivo(novo_reg_dados, arquivo_dados, &num_RRN) != 0)
+        { // enquanto não termina o arquivo
+          if (novo_reg_dados->removido[0] != '1')
+          {
+            if (compara_campo_inteiro(pos_campo, valor, novo_reg_dados) == 1)
+            { // se o registro foi encontrado
+              printa_registro(novo_reg_dados);
+              num_registros_encontrados++;
+            }
+          }
+        }
+        else
+        { // se ler tudo e não achar sai do loop
+          if (num_registros_encontrados == 0)
+            printf("Registro inexistente.\n\n");
+          break;
+        }
+      }
+    }
+    else if (pos_campo == 1 || pos_campo == 3 || pos_campo == 5 || pos_campo == 6)
+    { // se for campo de string
+      int num_RRN = -1;
+      scan_quote_string(buffer);
+      num_registros_encontrados = 0;
+      while (true)
+      {
+        if (le_arquivo(novo_reg_dados, arquivo_dados, &num_RRN) != 0)
+        {
+          if (novo_reg_dados->removido[0] != '1')
+          {
+            if (compara_campo_string(pos_campo, buffer, novo_reg_dados) == 1)
+            {
+              printa_registro(novo_reg_dados);
+              num_registros_encontrados++;
+            }
+          }
+        }
+        else
+        {
+          if (num_registros_encontrados == 0)
+            printf("Registro inexistente.\n\n");
+          break;
+        }
+      }
+    }
+    printf("Numero de paginas de disco: %d\n\n", novo_reg_cabecalho->nroPagDisco);
+    fseek(arquivo_dados, TAM_PAG_DISCO, SEEK_SET); // volta pro inicio do arquivo após o registro de cabeçalho para nova busca
+  }
+
+  free(novo_reg_dados);
+  free(novo_reg_cabecalho);
+  free(novo_reg_cabecalho_arvore);
+  fclose(arquivo_dados);
+  fclose(arquivo_indice);
+}
+
+
 void comando9()
 {
-  char *nome_arquivo_dados, nome_arquivo_indice;
+  char *nome_arquivo_dados, *nome_arquivo_indice;
   int n_insercoes, rrn_reg_dados;
   FILE *data_fp, *btree_fp;
   reg_dados rd;

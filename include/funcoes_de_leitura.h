@@ -18,4 +18,7 @@ void ler_dados(char*, reg_dados*);
 void ler_registros_dados_teclado(reg_dados*);
 int ler_campo();
 
+//leitura do indice
+void ler_dados_indice_porRRN(FILE*, int, reg_dados_indice*);
+
 #endif

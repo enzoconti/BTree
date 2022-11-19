@@ -273,3 +273,25 @@ int ler_campo(){
     else if(strcmp(buffer, "nomePais") == 0) return 6;
     else return -1;
 }
+
+void ler_dados_indice_porRRN(FILE* arq, int RRN, reg_dados_indice* reg){
+
+    int byte_offset = TAM_REG_CABECALHO_ARVORE + RRN*TAM_REG_DADOS_ARVORE;
+    fseek(arq, byte_offset , SEEK_SET);
+
+    fread(reg->folha[0], sizeof(char), 1, arq);
+    reg->folha[1] = '\0';
+
+    fread(&reg->nroChavesNo, sizeof(int), 1, arq);
+    fread(&reg->RRNdoNo, sizeof(int), 1, arq);
+
+    for(int i = 0; i < ORDEM_ARVORE_B; i++){
+        fread(reg->ponteiroSubarvore[i], sizeof(int), 1, arq);
+    }
+    for(int i = 0; i < ORDEM_ARVORE_B-1; i++){
+        fread(reg->chaveBusca[i], sizeof(int), 1, arq);
+    }
+        for(int i = 0; i < ORDEM_ARVORE_B-1; i++){
+        fread(reg->RRNdoRegistro[i], sizeof(int), 1, arq);
+    }
+}

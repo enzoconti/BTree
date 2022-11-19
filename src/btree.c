@@ -1,20 +1,27 @@
-#include "btree.h"
+#include "../include/btree.h"
 
+int busca_arvore(reg_cabecalho_arvore* reg, int* pos, int* rrn_found, int chave, FILE* arq){
 
-int busca_arvore(reg_dados_indice* reg, int chave){
+    if(reg->noRaiz == -1) return NAO_ENCONTRADO;//caso base, não existe arvore
 
-    if (reg !=NULL){
+    return _busca_arvore(reg->noRaiz, pos, rrn_found, chave, arq);
 
-    int i = 0;
+}
 
-    while (i<reg->nroChavesNo && chave > reg->chaveBusca[i]) i++;
-    
-    if (i<reg->nroChavesNo && chave == reg->chaveBusca[i]) return reg->RRNdoRegistro[i]; //chave encontrada
+int _busca_arvore(int RRN, int *pos, int *rrn_found, int chave, FILE* arq){
 
-    else if (reg->folha == '1') return ; //n sei oq retornar scr
+    if(RRN == -1) return NAO_ENCONTRADO;//caso base, nó pai folha
 
-    else return busca_arvore(reg->ponteiroSubarvore[i], chave);
+    reg_dados_indice* novo_reg_dados = cria_registro_dados_indice();
+    ler_dados_indice_porRRN(arq, RRN, &novo_reg_dados);//le o nó atual para RAM
 
+    int flag_de_retorno = busca_na_pagina(chave, pos, novo_reg_dados); //busca na pagina atual
+    if(flag_de_retorno == ENCONTRADO){
+        *rrn_found = novo_reg_dados->RRNdoRegistro[*pos];
+        return ENCONTRADO;
+    }
+    else{
+        return(_busca_arvore(novo_reg_dados->ponteiroSubarvore[*pos], pos, rrn_found, chave, arq));
     }
 }
 
@@ -22,7 +29,7 @@ void insercao_btree(FILE*fp,reg_cabecalho_arvore*h,int key, int data_rrn_4insert
     int flag_retorno;
     int *promoted_child, *promoted_key, *promoted_data_rrn;
     reg_dados_indice* new_root;
-    int rrn_insercao = busca_arvore(h->noRaiz,key); // CRIAR ESSA FUNCAO
+    int rrn_insercao = busca_arvore(h->noRaiz,key, ); // CORRIGIR ARGUMENTOS
     flag_retorno = _insercao_btree(fp,h,rrn_insercao,key,data_rrn_4insertion,promoted_child,promoted_key,promoted_data_rrn);
 
     if(flag_retorno == PROMOTION){ // houve split na raiz ou a arvore estava vazia
@@ -194,11 +201,11 @@ void split(int key, int data_rrn, int* upkey, int* updata_rrn, int*upchild, reg_
     if(ORDEM_ARVORE_B % 2 == 0) r->nroChavesNo++; // o da esquerda fica com um a mais se a ordem for par
 }
 
-int busca_na_pagina(int key,int* pos, reg_dados_indice* r){
+int busca_na_pagina(int key, int* pos, reg_dados_indice* r){
     int i=0;
     // a posicao onde deveria estar ou esta eh antes da primeira chave maior do que a chave buscada
     for(i=0;i<r->nroChavesNo;i++){
-        if(key < r->chaveBusca[i]){
+        if(key <= r->chaveBusca[i]){
             *pos = i;
 
             if(r->chaveBusca[*pos] == key) return ENCONTRADO;
@@ -206,7 +213,7 @@ int busca_na_pagina(int key,int* pos, reg_dados_indice* r){
         }
     }
 
-    if( i == r->nroChavesNo){ // isso significa que nao encontrou nenhuma chave maior que ela
+    if(i == r->nroChavesNo){ // isso significa que nao encontrou nenhuma chave maior que ela
         *pos = i; // deveria estar por ultimo (no caso de a pagina ja estar cheia, isso estara fora dos array bounds e indica pagina cheia)
         return NAO_ENCONTRADO;
     }

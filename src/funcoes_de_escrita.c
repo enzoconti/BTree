@@ -173,3 +173,23 @@ int insere_registro_dados(FILE* arquivo_entrada, reg_cabecalho *h,reg_dados* rd)
 
     return (byteoffset_written - TAM_PAG_DISCO)/TAM_REG_DADOS;
 }
+
+void escrever_dados_indice_porRRN(FILE* arq, int RRN, reg_dados_indice* reg){
+
+    int byte_offset = TAM_REG_CABECALHO_ARVORE + RRN*TAM_REG_DADOS_ARVORE;
+    fseek(arq, byte_offset , SEEK_SET);
+
+    fwrite(reg->folha[0], sizeof(char), 1, arq);
+    fwrite(&reg->nroChavesNo, sizeof(int), 1, arq);
+    fwrite(&reg->RRNdoNo, sizeof(int), 1, arq);
+
+    for(int i = 0; i < ORDEM_ARVORE_B; i++){
+        fwrite(reg->ponteiroSubarvore[i], sizeof(int), 1, arq);
+    }
+    for(int i = 0; i < ORDEM_ARVORE_B-1; i++){
+        fwrite(reg->chaveBusca[i], sizeof(int), 1, arq);
+    }
+        for(int i = 0; i < ORDEM_ARVORE_B-1; i++){
+        fwrite(reg->RRNdoRegistro[i], sizeof(int), 1, arq);
+    }
+}
