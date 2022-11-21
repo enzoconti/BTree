@@ -28,6 +28,9 @@ TAM_NOME_ARQUIVO -> define um tamanho máximo de um nome de arquivo em bytes (20
 #define TAM_NOME_ARQUIVO 20
 #define ORDEM_ARVORE_B 5
 
+#define ENCONTRADO 1
+#define NAO_ENCONTRADO 0
+
 /*
 
 Definição de uma estrutura do registro de dados, com os campos definidos conforme especificações. Os campos "removido",

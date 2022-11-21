@@ -456,6 +456,7 @@ void comando8(){
   scanf("%d", &num_buscas);
 
   reg_dados *novo_reg_dados = cria_registro_dados();
+  reg_dados_indice *novo_reg_encontrado = cria_registro_dados_indice();
   reg_cabecalho *novo_reg_cabecalho = cria_registro_cabecalho();
   reg_cabecalho_arvore *novo_reg_cabecalho_arvore = cria_registro_cabecalho_arvore();
 
@@ -485,14 +486,13 @@ void comando8(){
 
     if(pos_campo == 0){//usa arquivo de indice
       int* pos;//posicao no arquivo de indice
-      int* rrn_found;//rrn do reigstro, se encontrado
 
       scanf("%d", &valor);
       num_registros_encontrados = 0;
 
-      int flag_retorno = busca_arvore(novo_reg_cabecalho_arvore, pos, rrn_found, valor, arquivo_indice);
+      int flag_retorno = busca_arvore(novo_reg_cabecalho_arvore, pos, novo_reg_encontrado, valor, arquivo_indice);
       if(flag_retorno != 0){//encontrou registro
-        fseek(arquivo_dados, TAM_PAG_DISCO + (*rrn_found)*TAM_REG_DADOS, SEEK_SET);
+        fseek(arquivo_dados, TAM_PAG_DISCO + (*novo_reg_encontrado->RRNdoRegistro)*TAM_REG_DADOS, SEEK_SET);
         le_registro(novo_reg_dados, arquivo_dados);
 
         if (novo_reg_dados->removido[0] != '1') printa_registro(novo_reg_dados);
@@ -567,8 +567,8 @@ void comando8(){
 }
 
 
-void comando9()
-{
+void comando9(){
+  
   char *nome_arquivo_dados, *nome_arquivo_indice;
   int n_insercoes, rrn_reg_dados;
   FILE *data_fp, *btree_fp;
@@ -594,8 +594,7 @@ void comando9()
   reg_cabecalho_arvore *h_btree;
   h_btree = cria_registro_cabecalho_arvore();
   ler_reg_cabecalho_arvore(btree_fp, h_btree); // CRIAR ESSA FUNCAO
-  if (checa_consistencia(h) != 0)
-  {
+  if (checa_consistencia(h) != 0){
     free(h_btree);
     fclose(btree_fp);
     return;

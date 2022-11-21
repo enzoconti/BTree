@@ -1,14 +1,14 @@
 #include "../include/btree.h"
 
-int busca_arvore(reg_cabecalho_arvore* reg, int* pos, int* rrn_found, int chave, FILE* arq){
+int busca_arvore(reg_cabecalho_arvore* reg, int* pos, reg_dados_indice *reg_arvore_encontrado, int chave, FILE* arq){
 
     if(reg->noRaiz == -1) return NAO_ENCONTRADO;//caso base, não existe arvore
 
-    return _busca_arvore(reg->noRaiz, pos, rrn_found, chave, arq);
+    return _busca_arvore(reg->noRaiz, pos, reg_arvore_encontrado, chave, arq);
 
 }
 
-int _busca_arvore(int RRN, int *pos, int *rrn_found, int chave, FILE* arq){
+int _busca_arvore(int RRN, int *pos, reg_dados_indice *reg_arvore_encontrado, int chave, FILE* arq){
 
     if(RRN == -1) return NAO_ENCONTRADO;//caso base, nó pai folha
 
@@ -17,11 +17,11 @@ int _busca_arvore(int RRN, int *pos, int *rrn_found, int chave, FILE* arq){
 
     int flag_de_retorno = busca_na_pagina(chave, pos, novo_reg_dados); //busca na pagina atual
     if(flag_de_retorno == ENCONTRADO){//se encontrado
-        *rrn_found = novo_reg_dados->RRNdoRegistro[*pos];//rrn_found se torna o RRNdoRegistro na posição pos
+        *reg_arvore_encontrado = *novo_reg_dados; // reg_arvore_encontrado se torna o novo_reg_dados 
         return ENCONTRADO;
     }
     else{
-        return(_busca_arvore(novo_reg_dados->ponteiroSubarvore[*pos], pos, rrn_found, chave, arq));
+        return(_busca_arvore(novo_reg_dados->ponteiroSubarvore[*pos], pos, reg_arvore_encontrado, chave, arq));
     }
 }
 
@@ -29,8 +29,14 @@ void insercao_btree(FILE*fp, reg_cabecalho_arvore*h, int key, int data_rrn_4inse
     int flag_retorno;
     int *promoted_child, *promoted_key, *promoted_data_rrn;
     reg_dados_indice* new_root;
-    int rrn_insercao = busca_arvore(h->noRaiz,key, ); // CORRIGIR ARGUMENTOS
-    flag_retorno = _insercao_btree(fp,h,rrn_insercao,key,data_rrn_4insertion,promoted_child,promoted_key,promoted_data_rrn);
+    reg_dados_indice* reg_buscado = cria_registro_dados_indice();
+    int* found_pos, flag_busca;
+    flag_busca = busca_arvore(h->noRaiz, found_pos, reg_buscado, key, fp);
+
+    if(flag_busca == ENCONTRADO) return; // chave ja presente na arvore, nao insere
+
+
+    flag_retorno = _insercao_btree(fp,h,reg_buscado,key,data_rrn_4insertion,promoted_child,promoted_key,promoted_data_rrn);
 
     if(flag_retorno == PROMOTION){ // houve split na raiz ou a arvore estava vazia
         // cria nova raiz
@@ -72,19 +78,16 @@ void insercao_btree(FILE*fp, reg_cabecalho_arvore*h, int key, int data_rrn_4inse
  * @param promoted_data_rrn rrn no arquivo de dados promovido daqui pro nivel superior
  * @return ** int retorna se houve promocao ou nao, com uma flag extra para erro em caso de chaves repetidas
  */
-int _insercao_btree(FILE* fp,reg_cabecalho_arvore* h, int current_index_rrn, int key, int data_rrn_4insertion, int* promoted_child, int* promoted_key, int* promoted_data_rrn){
-    reg_dados_indice *reg_arvore;
+int _insercao_btree(FILE* fp,reg_cabecalho_arvore* h, reg_dados_indice* reg_arvore_atual, int key, int data_rrn_4insertion, int* promoted_child, int* promoted_key, int* promoted_data_rrn){
     int posicao_key, flag_retorno, flag_insercao=0;
 
-    if(current_index_rrn == -1){ // atingimos uma pagina inexistente - rrn vazio
+    if(reg_arvore_atual == NULL){ // atingimos uma pagina inexistente - rrn vazio
         *promoted_key = key;
         *promoted_data_rrn = data_rrn_4insertion;
         *promoted_child = -1; // chave promovida vai sem nenhum filho
         return PROMOTION; // promovemos a key para a pagina pai na qual sera inserida
     }else{
-        ler_dados_indice_porRRN(fp, current_index_rrn,&reg_arvore); // CRIAR ESSA FUNCAO
-
-        flag_insercao = busca_na_pagina(key, &posicao_key, reg_arvore);
+        flag_insercao = busca_na_pagina(key, &posicao_key, reg_arvore_atual);
     }
     if(flag_insercao == ENCONTRADO) return INSERTION_ERROR; // retorna erro se ja possui a chave
 
@@ -92,8 +95,14 @@ int _insercao_btree(FILE* fp,reg_cabecalho_arvore* h, int current_index_rrn, int
     int* promoted_below_child;
     int* promoted_below_key;
     int* promoted_below_data_rrn;
-    flag_retorno =  _insercao_btree(fp,h,reg_arvore->ponteiroSubarvore[posicao_key],key,data_rrn_4insertion,promoted_below_child,promoted_below_key,promoted_below_data_rrn);
-
+    if(reg_arvore_atual->ponteiroSubarvore[posicao_key] == -1){ // caso o RRN seja -1 passamos NULL para servir como caso base da recursao
+        flag_retorno = _insercao_btree(fp,h,NULL,key,data_rrn_4insertion,promoted_below_child,promoted_below_key,promoted_below_data_rrn);
+    }else{
+        reg_dados_indice *reg_arvore_proximo;
+        reg_arvore_proximo = cria_registro_dados_indice();
+        ler_dados_indice_porRRN(fp, reg_arvore_atual->ponteiroSubarvore[posicao_key], reg_arvore_proximo);
+        flag_retorno =  _insercao_btree(fp,h,reg_arvore_proximo,key,data_rrn_4insertion,promoted_below_child,promoted_below_key,promoted_below_data_rrn);
+    }
 
     if(flag_retorno == NO_PROMOTION || flag_retorno == INSERTION_ERROR){
         return flag_retorno;
@@ -101,9 +110,9 @@ int _insercao_btree(FILE* fp,reg_cabecalho_arvore* h, int current_index_rrn, int
     // flag_retorno == PROMOTION a partir daqui, pois NO_PROMOTION e INSERTION_ERROR foram descartados
 
 
-    if(reg_arvore->nroChavesNo < ORDEM_ARVORE_B - 1){ // significa que esse no tem espaco
-        flag_insercao = insere_na_pagina(reg_arvore,*promoted_below_key,*promoted_below_data_rrn,*promoted_below_child);
-        escrever_dados_indice_porRRN(fp,current_index_rrn,&reg_arvore); // escreve os dados atualizados da pagina // CRIAR ESSA FUNCAO
+    if(reg_arvore_atual->nroChavesNo < ORDEM_ARVORE_B - 1){ // significa que esse no tem espaco
+        flag_insercao = insere_na_pagina(reg_arvore_atual,*promoted_below_key,*promoted_below_data_rrn,*promoted_below_child);
+        escrever_dados_indice_porRRN(fp,reg_arvore_atual->RRNdoNo,&reg_arvore_atual); // escreve os dados atualizados da pagina // CRIAR ESSA FUNCAO
         
 
         if(flag_insercao == ENCONTRADO) return INSERTION_ERROR;
@@ -114,15 +123,15 @@ int _insercao_btree(FILE* fp,reg_cabecalho_arvore* h, int current_index_rrn, int
         newreg_arvore = cria_registro_dados_indice();
         newreg_arvore->RRNdoNo = h->RRNproxNo;
         h->RRNproxNo++;
-        strcpy(newreg_arvore->folha,reg_arvore->folha);
-        newreg_arvore->alturaNo = reg_arvore->alturaNo;
+        strcpy(newreg_arvore->folha,reg_arvore_atual->folha);
+        newreg_arvore->alturaNo = reg_arvore_atual->alturaNo;
        
         
 
         split(promoted_below_key,promoted_below_data_rrn,promoted_key,promoted_data_rrn,promoted_child,reg_arvore,newreg_arvore);
 
         // reescreve os dados de ambas as paginas da btree
-        escrever_dados_indice_porRRN(fp,reg_arvore->RRNdoNo,&reg_arvore); // CRIAR ESSA FUNCAO
+        escrever_dados_indice_porRRN(fp,reg_arvore_atual->RRNdoNo,&reg_arvore_atual); // CRIAR ESSA FUNCAO
         escrever_dados_indice_porRRN(fp,newreg_arvore->RRNdoNo,&newreg_arvore); // CRIAR ESSA FUNCAO
 
         return PROMOTION;
