@@ -1,5 +1,11 @@
 #include "../include/btree_rw_e_io.h"
 
+/**
+ * @brief Função responsável pela escrita de um registro de cabeçalho da Árvore B
+ * 
+ * @param arquivo Ponteiro para o arquivo de índice
+ * @param reg Ponteiro do registro cujos dados serão gravados no arquivo de índice
+ */
 void escrever_no_arquivo_cabecalho_arvore(FILE* arquivo, reg_cabecalho_arvore* reg){
     
     escreve_string_no_arquivo(reg->status, arquivo, 1);
@@ -13,6 +19,12 @@ void escrever_no_arquivo_cabecalho_arvore(FILE* arquivo, reg_cabecalho_arvore* r
     }
 }
 
+/**
+ * @brief Função responsável pela leitura de um registro de cabeçalho da Árvore B
+ * 
+ * @param arquivo Ponteiro para o arquivo de índice
+ * @param reg Ponteiro para o registro em que serão gravados os dados lidos do arquivo
+ */
 void ler_reg_cabecalho_arvore(FILE* arquivo, reg_cabecalho_arvore* reg){
     
     fread(&reg->status, sizeof(char), 1, arquivo);
@@ -24,45 +36,72 @@ void ler_reg_cabecalho_arvore(FILE* arquivo, reg_cabecalho_arvore* reg){
     fseek(arquivo, TAM_PAG_ARVORE - TAM_REG_CABECALHO_ARVORE, SEEK_CUR);
 }
 
-void escrever_dados_indice_porRRN(FILE* arq, int RRN, reg_dados_indice* reg){
+/**
+ * @brief Função responsável pela escrita de um registro de índice (nó da árvore B) num arquivo de índice
+ * 
+ * @param arquivo Ponteiro para o arquivo de índice
+ * @param reg Ponteiro do registro de dados que terá suas informações escritas no arquivo de índice
+ */
+void escrever_dados_indice(FILE* arquivo, reg_dados_indice* reg){
 
-    int byte_offset = TAM_PAG_ARVORE + RRN*TAM_REG_DADOS_ARVORE;
-    fseek(arq, byte_offset , SEEK_SET);
+    fwrite(reg->folha[0], sizeof(char), 1, arquivo);
+    fwrite(&reg->nroChavesNo, sizeof(int), 1, arquivo);
+    fwrite(&reg->RRNdoNo, sizeof(int), 1, arquivo);
 
-    fwrite(reg->folha[0], sizeof(char), 1, arq);
-    fwrite(&reg->nroChavesNo, sizeof(int), 1, arq);
-    fwrite(&reg->RRNdoNo, sizeof(int), 1, arq);
-
-    for(int i = 0; i < ORDEM_ARVORE_B; i++){
-        fwrite(reg->ponteiroSubarvore[i], sizeof(int), 1, arq);
-    }
     for(int i = 0; i < ORDEM_ARVORE_B-1; i++){
-        fwrite(reg->chaveBusca[i], sizeof(int), 1, arq);
+        fwrite(reg->ponteiroSubarvore[i], sizeof(int), 1, arquivo);
+        fwrite(reg->chaveBusca[i], sizeof(int), 1, arquivo);
+        fwrite(reg->RRNdoRegistro[i], sizeof(int), 1, arquivo);
     }
-        for(int i = 0; i < ORDEM_ARVORE_B-1; i++){
-        fwrite(reg->RRNdoRegistro[i], sizeof(int), 1, arq);
-    }
+    fwrite(reg->ponteiroSubarvore[ORDEM_ARVORE_B-1], sizeof(int), 1, arquivo);
 }
 
+/**
+ * @brief Função responsável pela escrita de um registro de índice (nó da árvore B) num arquivo de índice a partir de dado RRN
+ * 
+ * @param arquivo Ponteiro para o arquivo de índice
+ * @param RRN RRN do nó que se quer escrever
+ * @param reg Ponteiro do registro de dados que terá suas informações escritas no arquivo de índice
+ */
+void escrever_dados_indice_porRRN(FILE* arquivo, int RRN, reg_dados_indice* reg){
 
-void ler_dados_indice_porRRN(FILE* arq, int RRN, reg_dados_indice* reg){
+    int byte_offset = TAM_PAG_ARVORE + RRN*TAM_REG_DADOS_ARVORE;
+    fseek(arquivo, byte_offset, SEEK_SET);
+    escrever_dados_indice(arquivo, reg);
+}
 
-    int byte_offset = TAM_REG_CABECALHO_ARVORE + RRN*TAM_REG_DADOS_ARVORE;
-    fseek(arq, byte_offset , SEEK_SET);
+/**
+ * @brief Função responsável pela leitura dos dados de um nó de um arquivo de índice
+ * 
+ * @param arquivo Ponteiro para o arquivo de índice
+ * @param reg Ponteiro para o registro em que serão gravados os dados lidos do arquivo de índice
+ */
+void ler_dados_indice(FILE* arquivo, reg_dados_indice* reg){
 
-    fread(reg->folha[0], sizeof(char), 1, arq);
+    fread(reg->folha[0], sizeof(char), 1, arquivo);
     reg->folha[1] = '\0';
 
-    fread(&reg->nroChavesNo, sizeof(int), 1, arq);
-    fread(&reg->RRNdoNo, sizeof(int), 1, arq);
+    fread(&reg->nroChavesNo, sizeof(int), 1, arquivo);
+    fread(&reg->RRNdoNo, sizeof(int), 1, arquivo);
 
-    for(int i = 0; i < ORDEM_ARVORE_B; i++){
-        fread(reg->ponteiroSubarvore[i], sizeof(int), 1, arq);
-    }
     for(int i = 0; i < ORDEM_ARVORE_B-1; i++){
-        fread(reg->chaveBusca[i], sizeof(int), 1, arq);
+        fread(reg->ponteiroSubarvore[i], sizeof(int), 1, arquivo);
+        fread(reg->chaveBusca[i], sizeof(int), 1, arquivo);
+        fread(reg->RRNdoRegistro[i], sizeof(int), 1, arquivo);
     }
-        for(int i = 0; i < ORDEM_ARVORE_B-1; i++){
-        fread(reg->RRNdoRegistro[i], sizeof(int), 1, arq);
-    }
+    fread(reg->ponteiroSubarvore[ORDEM_ARVORE_B-1], sizeof(int), 1, arquivo);
+}
+
+/**
+ * @brief Função responsável pela leitura dos dados de um nó de um arquivo de índice a partir de um dado RRN
+ * 
+ * @param arquivo Ponteiro para o arquivo de índice
+ * @param RRN RRN do nó que se quer ler
+ * @param reg Ponteiro para o registro em que serão gravados os dados lidos do arquivo de índice
+ */
+void ler_dados_indice_porRRN(FILE* arquivo, int RRN, reg_dados_indice* reg){
+
+    int byte_offset = TAM_REG_CABECALHO_ARVORE + RRN*TAM_REG_DADOS_ARVORE;
+    fseek(arquivo, byte_offset , SEEK_SET);
+    ler_dados_indice(arquivo, reg);
 }

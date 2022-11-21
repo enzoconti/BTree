@@ -1,26 +1,48 @@
 #include "../include/btree.h"
 
+/**
+ * @brief Função responsável por inicializar a busca recursiva de um registro de dados no arquivo de índice da Árvore B
+ * 
+ * @param reg Ponteiro de registro de cabeçalho para registro de cabeçalho da árvore
+ * @param pos Ponteiro de inteiro que marca a posição num nó da árvore (?) !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ * @param reg_arvore_encontrado Ponteiro para registro de dados do índice que recebe os dados de um registro encontrado na busca
+ * @param chave Inteiro referente à chave de busca, isto é, o campo de busca indexada "idConecta" 
+ * @param arq Ponteiro para o arquivo de índice em que será realizado a busca
+ * @return int Responsável por informar se foi ou não encontrado o registro de dados buscado a partir da chave
+ */
+
 int busca_arvore(reg_cabecalho_arvore* reg, int* pos, reg_dados_indice *reg_arvore_encontrado, int chave, FILE* arq){
 
     if(reg->noRaiz == -1) return NAO_ENCONTRADO;//caso base, não existe arvore
 
+    //Inicializa-se a recursão a partir do RRN do nó da raiz da árvore
     return _busca_arvore(reg->noRaiz, pos, reg_arvore_encontrado, chave, arq);
-
 }
 
+/**
+ * @brief Função recursiva de busca por um registro de dados no arquivo de índice da Árvore B
+ * 
+ * @param RRN RRN do nó em que se está fazendo a busca
+ * @param pos onteiro de inteiro que marca a posição num nó da árvore (?) !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+ * @param reg_arvore_encontrado Ponteiro para registro de dados do índice que recebe os dados de um registro encontrado na busca
+ * @param chave Inteiro referente à chave de busca, isto é, o campo de busca indexada "idConecta" 
+ * @param arq Ponteiro para o arquivo de índice em que será realizado a busca
+ * @return int Responsável por informar se foi ou não encontrado o registro de dados buscado a partir da chave
+ */
 int _busca_arvore(int RRN, int *pos, reg_dados_indice *reg_arvore_encontrado, int chave, FILE* arq){
 
-    if(RRN == -1) return NAO_ENCONTRADO;//caso base, nó pai folha
+    if(RRN == -1) return NAO_ENCONTRADO;//Caso base, nó pai folha
 
     reg_dados_indice* novo_reg_dados = cria_registro_dados_indice();
-    ler_dados_indice_porRRN(arq, RRN, &novo_reg_dados);//le o nó atual para RAM
+    ler_dados_indice_porRRN(arq, RRN, &novo_reg_dados);//lê o nó atual para RAM
 
-    int flag_de_retorno = busca_na_pagina(chave, pos, novo_reg_dados); //busca na pagina atual
+    int flag_de_retorno = busca_na_pagina(chave, pos, novo_reg_dados); //busca na pagina (nó) atual
     if(flag_de_retorno == ENCONTRADO){//se encontrado
         *reg_arvore_encontrado = *novo_reg_dados; // reg_arvore_encontrado se torna o novo_reg_dados 
         return ENCONTRADO;
     }
     else{
+        //Chama busca recursiva, com o novo RRN referente ao ponteiro para subArvore na posição "pos"
         return(_busca_arvore(novo_reg_dados->ponteiroSubarvore[*pos], pos, reg_arvore_encontrado, chave, arq));
     }
 }
