@@ -16,5 +16,6 @@ void insercao_btree(FILE*fp,reg_cabecalho_arvore*h,int key, int data_rrn_4insert
 int _insercao_btree(FILE* fp,reg_cabecalho_arvore* h, reg_dados_indice* reg_arvore_atual, int key, int data_rrn_4insertion, int* promoted_child, int* promoted_key, int* promoted_data_rrn);
 int insere_na_pagina(reg_dados_indice* r,int insert_key, int insert_data_rrn, int insert_child);
 int busca_na_pagina(int key, int* pos, reg_dados_indice* r);
+void busca_indexada(int valor, int num_registros_encontrados, reg_cabecalho_arvore *novo_reg_cabecalho_arvore, reg_dados_indice *novo_reg_encontrado, FILE* arquivo_dados, FILE* arquivo_indice, reg_dados *novo_reg_dados);
 
 #endif

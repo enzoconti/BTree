@@ -483,25 +483,7 @@ void comando8(){
   for (int i = 0; i < num_buscas; i++){ // enquanto as buscas não acabarem
     printf("Busca %d\n", (i + 1));
     pos_campo = ler_campo();
-
-    if(pos_campo == 0){//usa arquivo de indice
-      int* pos;//posicao no arquivo de indice
-
-      scanf("%d", &valor);
-      num_registros_encontrados = 0;
-
-      int flag_retorno = busca_arvore(novo_reg_cabecalho_arvore, pos, novo_reg_encontrado, valor, arquivo_indice);
-      if(flag_retorno != 0){//encontrou registro
-        fseek(arquivo_dados, TAM_PAG_DISCO + (*novo_reg_encontrado->RRNdoRegistro)*TAM_REG_DADOS, SEEK_SET);
-        le_registro(novo_reg_dados, arquivo_dados);
-
-        if (novo_reg_dados->removido[0] != '1') printa_registro(novo_reg_dados);
-        num_registros_encontrados++;
-      }
-      else{
-        if (num_registros_encontrados == 0) printf("Registro inexistente.\n\n");
-      }
-    }
+    if(pos_campo == 0) busca_indexada(valor, num_registros_encontrados, novo_reg_cabecalho_arvore, novo_reg_encontrado, arquivo_dados, arquivo_indice, novo_reg_dados);
     else if (pos_campo == 2 || pos_campo == 4){// se for um campo de inteiro
 
       int num_RRN = -1; // necessário para argumento da função le_arquivo
