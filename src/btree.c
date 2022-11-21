@@ -77,6 +77,7 @@ void busca_indexada(int valor, int num_registros_encontrados, reg_cabecalho_arvo
     else{
         if (num_registros_encontrados == 0) printf("Registro inexistente.\n\n");
     }
+    }
 }
 
 void insercao_btree(FILE*fp, reg_cabecalho_arvore*h, int key, int data_rrn_4insertion){
