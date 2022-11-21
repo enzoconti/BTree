@@ -16,8 +16,8 @@ int _busca_arvore(int RRN, int *pos, int *rrn_found, int chave, FILE* arq){
     ler_dados_indice_porRRN(arq, RRN, &novo_reg_dados);//le o nó atual para RAM
 
     int flag_de_retorno = busca_na_pagina(chave, pos, novo_reg_dados); //busca na pagina atual
-    if(flag_de_retorno == ENCONTRADO){
-        *rrn_found = novo_reg_dados->RRNdoRegistro[*pos];
+    if(flag_de_retorno == ENCONTRADO){//se encontrado
+        *rrn_found = novo_reg_dados->RRNdoRegistro[*pos];//rrn_found se torna o RRNdoRegistro na posição pos
         return ENCONTRADO;
     }
     else{
