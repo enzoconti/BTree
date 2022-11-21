@@ -16,8 +16,8 @@ int _busca_arvore(int RRN, int *pos, int *rrn_found, int chave, FILE* arq){
     ler_dados_indice_porRRN(arq, RRN, &novo_reg_dados);//le o nó atual para RAM
 
     int flag_de_retorno = busca_na_pagina(chave, pos, novo_reg_dados); //busca na pagina atual
-    if(flag_de_retorno == ENCONTRADO){
-        *rrn_found = novo_reg_dados->RRNdoRegistro[*pos];
+    if(flag_de_retorno == ENCONTRADO){//se encontrado
+        *rrn_found = novo_reg_dados->RRNdoRegistro[*pos];//rrn_found se torna o RRNdoRegistro na posição pos
         return ENCONTRADO;
     }
     else{
@@ -25,7 +25,7 @@ int _busca_arvore(int RRN, int *pos, int *rrn_found, int chave, FILE* arq){
     }
 }
 
-void insercao_btree(FILE*fp,reg_cabecalho_arvore*h,int key, int data_rrn_4insertion){
+void insercao_btree(FILE*fp, reg_cabecalho_arvore*h, int key, int data_rrn_4insertion){
     int flag_retorno;
     int *promoted_child, *promoted_key, *promoted_data_rrn;
     reg_dados_indice* new_root;
@@ -70,7 +70,7 @@ void insercao_btree(FILE*fp,reg_cabecalho_arvore*h,int key, int data_rrn_4insert
  * @param promoted_child rrn do filho promovido daqui pro nivel superior
  * @param promoted_key chave promovida daqui pro nivel superior
  * @param promoted_data_rrn rrn no arquivo de dados promovido daqui pro nivel superior
- * @return ** int retorna se houve promocao ou nao, com uma flag extra pra erro em caso de chaves repetidas
+ * @return ** int retorna se houve promocao ou nao, com uma flag extra para erro em caso de chaves repetidas
  */
 int _insercao_btree(FILE* fp,reg_cabecalho_arvore* h, int current_index_rrn, int key, int data_rrn_4insertion, int* promoted_child, int* promoted_key, int* promoted_data_rrn){
     reg_dados_indice *reg_arvore;
@@ -242,4 +242,3 @@ int insere_na_pagina(reg_dados_indice* r,int insert_key, int insert_data_rrn, in
 
     r->nroChavesNo++;
 }
-

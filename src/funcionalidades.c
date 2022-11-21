@@ -430,6 +430,12 @@ void comando6(char *nome_do_arquivo_entrada)
   }
 }
 
+/**
+ * @brief Função responsável por realizar a funcionalidade 8, que lê um arquivo binário e um arquivo de índice e realiza a
+ * busca de um registro, utilizando o arquivo de índice no caso de buscas que utilizem o campo idConecta, que é a chave de busca.
+ * e utiliza a busca linear (da funcionalidade 3), caso seja utilizado qualquer outro campo.
+ * 
+ */
 void comando8(){
 
   char *nome_arquivo_dados, *nome_arquivo_indice;
@@ -454,11 +460,22 @@ void comando8(){
   reg_cabecalho_arvore *novo_reg_cabecalho_arvore = cria_registro_cabecalho_arvore();
 
   ler_reg_cabecalho(arquivo_dados, novo_reg_cabecalho);
+  ler_reg_cabecalho_arvore(arquivo_indice, novo_reg_cabecalho_arvore);
 
   if (checa_consistencia(novo_reg_cabecalho) != 0){
     free(novo_reg_dados);
     free(novo_reg_cabecalho);
+    free(novo_reg_cabecalho_arvore);
     fclose(arquivo_dados);
+    fclose(arquivo_indice);
+    return;
+  }
+  if (checa_consistencia_indice(novo_reg_cabecalho_arvore) != 0){
+    free(novo_reg_dados);
+    free(novo_reg_cabecalho);
+    free(novo_reg_cabecalho_arvore);
+    fclose(arquivo_dados);
+    fclose(arquivo_indice);
     return;
   }
 
@@ -468,7 +485,7 @@ void comando8(){
 
     if(pos_campo == 0){//usa arquivo de indice
       int* pos;//posicao no arquivo de indice
-      int* rrn_found;//rrn encontrado
+      int* rrn_found;//rrn do reigstro, se encontrado
 
       scanf("%d", &valor);
       num_registros_encontrados = 0;
@@ -477,10 +494,13 @@ void comando8(){
       if(flag_retorno != 0){//encontrou registro
         fseek(arquivo_dados, TAM_PAG_DISCO + (*rrn_found)*TAM_REG_DADOS, SEEK_SET);
         le_registro(novo_reg_dados, arquivo_dados);
+
         if (novo_reg_dados->removido[0] != '1') printa_registro(novo_reg_dados);
         num_registros_encontrados++;
       }
-      else printf("Registro inexistente.\n\n");
+      else{
+        if (num_registros_encontrados == 0) printf("Registro inexistente.\n\n");
+      }
     }
     else if (pos_campo == 2 || pos_campo == 4){// se for um campo de inteiro
 
@@ -536,6 +556,7 @@ void comando8(){
     }
     printf("Numero de paginas de disco: %d\n\n", novo_reg_cabecalho->nroPagDisco);
     fseek(arquivo_dados, TAM_PAG_DISCO, SEEK_SET); // volta pro inicio do arquivo após o registro de cabeçalho para nova busca
+    fseek(arquivo_indice, TAM_PAG_ARVORE, SEEK_SET); // volta pro inicio do arquivo após o registro de cabeçalho para nova busca
   }
 
   free(novo_reg_dados);

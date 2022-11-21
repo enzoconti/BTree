@@ -14,7 +14,4 @@ int insere_registro_dados(FILE* arquivo_entrada, reg_cabecalho *h,reg_dados* rd)
 
 //escreve na tela
 void printa_registro(reg_dados*);
-
-//escrita do indice
-void escrever_dados_indice_porRRN(FILE*, int, reg_dados_indice*);
 #endif
