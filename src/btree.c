@@ -47,6 +47,38 @@ int _busca_arvore(int RRN, int *pos, reg_dados_indice *reg_arvore_encontrado, in
     }
 }
 
+/**
+ * @brief Função responsável por fazer a busca indexada de um registro de dados a partir de uma chave e um arquivo de
+ * índice Árvore B
+ * 
+ * @param valor Buffer de inteiro para armazenar o o valor do campo idConecta
+ * @param num_registros_encontrados Variável responsávael por marcar o número de registros encontrados
+ * @param novo_reg_cabecalho_arvore Ponteiro para um registro de cabeçalho da Árvore B
+ * @param novo_reg_encontrado Ponteiro de um registro de dados da árvore B para armazenar o registro encontrado na busca
+ * @param arquivo_dados Ponteiro para o arquivo de dados com os registros
+ * @param arquivo_indice Ponteiro para o arquivo de índice
+ * @param novo_reg_dados Ponteiro para registro de dados que armazenará as informações do registro encontrado no arquivo de dados
+ */
+void busca_indexada(int valor, int num_registros_encontrados, reg_cabecalho_arvore *novo_reg_cabecalho_arvore, reg_dados_indice *novo_reg_encontrado, FILE* arquivo_dados, FILE* arquivo_indice, reg_dados *novo_reg_dados){
+    int* pos;//posicao no arquivo de indice
+
+    scanf("%d", &valor);
+    num_registros_encontrados = 0;
+
+    int flag_retorno = busca_arvore(novo_reg_cabecalho_arvore, pos, novo_reg_encontrado, valor, arquivo_indice);
+    if(flag_retorno != 0){//encontrou registro
+    fseek(arquivo_dados, TAM_PAG_DISCO + (*novo_reg_encontrado->RRNdoRegistro)*TAM_REG_DADOS, SEEK_SET);
+    le_registro(novo_reg_dados, arquivo_dados);
+
+    if (novo_reg_dados->removido[0] != '1'){
+        printa_registro(novo_reg_dados);
+        num_registros_encontrados++;
+    }
+    else{
+        if (num_registros_encontrados == 0) printf("Registro inexistente.\n\n");
+    }
+}
+
 void insercao_btree(FILE*fp, reg_cabecalho_arvore*h, int key, int data_rrn_4insertion){
     int flag_retorno;
     int *promoted_child, *promoted_key, *promoted_data_rrn;
@@ -147,8 +179,6 @@ int _insercao_btree(FILE* fp,reg_cabecalho_arvore* h, reg_dados_indice* reg_arvo
         h->RRNproxNo++;
         strcpy(newreg_arvore->folha,reg_arvore_atual->folha);
         newreg_arvore->alturaNo = reg_arvore_atual->alturaNo;
-       
-        
 
         split(promoted_below_key,promoted_below_data_rrn,promoted_key,promoted_data_rrn,promoted_child,reg_arvore,newreg_arvore);
 
