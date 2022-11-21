@@ -431,7 +431,9 @@ void comando6(char *nome_do_arquivo_entrada)
 }
 
 /**
- * @brief 
+ * @brief Função responsável por realizar a funcionalidade 8, que lê um arquivo binário e um arquivo de índice e realiza a
+ * busca de um registro, utilizando o arquivo de índice no caso de buscas que utilizem o campo idConecta, que é a chave de busca.
+ * e utiliza a busca linear (da funcionalidade 3), caso seja utilizado qualquer outro campo.
  * 
  */
 void comando8(){
