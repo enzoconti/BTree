@@ -214,7 +214,7 @@ int busca_na_pagina(int key, int* pos, reg_dados_indice* r){
     }
 
     if(i == r->nroChavesNo){ // isso significa que nao encontrou nenhuma chave maior que ela
-        *pos = i; // deveria estar por ultimo (no caso de a pagina ja estar cheia, isso estara fora dos array bounds e indica pagina cheia)
+        *pos = i; // deveria estar por ultimo (no caso de a pagina ja estar cheia, isso estara fora dos array bounds e indica pagina cheia  )
         return NAO_ENCONTRADO;
     }
 }
