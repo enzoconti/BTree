@@ -108,8 +108,6 @@ int _insercao_btree(FILE* fp,reg_cabecalho_arvore* h, reg_dados_indice* reg_arvo
         return flag_retorno;
     }
     // flag_retorno == PROMOTION a partir daqui, pois NO_PROMOTION e INSERTION_ERROR foram descartados
-
-
     if(reg_arvore_atual->nroChavesNo < ORDEM_ARVORE_B - 1){ // significa que esse no tem espaco
         flag_insercao = insere_na_pagina(reg_arvore_atual,*promoted_below_key,*promoted_below_data_rrn,*promoted_below_child);
         escrever_dados_indice_porRRN(fp,reg_arvore_atual->RRNdoNo,&reg_arvore_atual); // escreve os dados atualizados da pagina // CRIAR ESSA FUNCAO
@@ -128,7 +126,7 @@ int _insercao_btree(FILE* fp,reg_cabecalho_arvore* h, reg_dados_indice* reg_arvo
        
         
 
-        split(promoted_below_key,promoted_below_data_rrn,promoted_key,promoted_data_rrn,promoted_child,reg_arvore,newreg_arvore);
+        split(*promoted_below_key,*promoted_below_data_rrn,*promoted_below_child,promoted_key,promoted_data_rrn,promoted_child,reg_arvore_atual,newreg_arvore);
 
         // reescreve os dados de ambas as paginas da btree
         escrever_dados_indice_porRRN(fp,reg_arvore_atual->RRNdoNo,&reg_arvore_atual); // CRIAR ESSA FUNCAO
@@ -169,12 +167,12 @@ int _insercao_btree(FILE* fp,reg_cabecalho_arvore* h, reg_dados_indice* reg_arvo
         caso tenhamos 3 chaves(ordem 4) + 1 de insercao e devemos promover uma(optando por deixar o no da esquerda com mais chaves), promovemos a chave3 (posicao 2)
         em ambos casos, a posicao(=2) eh igual ao resultado da divisao inteira da ordem por 2(5/2 = 2 ou 4/2 = 2)
     */
-void split(int key, int data_rrn, int* upkey, int* updata_rrn, int*upchild, reg_dados_indice *r, reg_dados_indice *newr ){
+void split(int key, int data_rrn,int right_child, int* upkey, int* updata_rrn, int*upchild, reg_dados_indice *r, reg_dados_indice *newr ){
     // aqui precisamos de vetores auxiliares que serao ordenados de acordo com as keys
     int aux_keys[ORDEM_ARVORE_B];
     int aux_data_rrns[ORDEM_ARVORE_B];
+    int aux_right_children[ORDEM_ARVORE_B];
     int promotion_position = ORDEM_ARVORE_B/2;
-    
 
     // primeiro inserimos ordenadamente(ordenacao baseada nas keys) nos vetores auxiliares
     int has_added_value=0; // indica se o valor ja foi adicionado
@@ -184,9 +182,11 @@ void split(int key, int data_rrn, int* upkey, int* updata_rrn, int*upchild, reg_
             has_added_value = 1;
             aux_keys[i] = key;
             aux_data_rrns[i] = data_rrn;
+            aux_right_children[i] = right_child;
         }else{    // caso contrario, so adicionamos a chaveBusca[] (seja antes da key pois chaveBusca[j] < key ou seja depois pois key ja foi adicionada)
             aux_keys[i] = r->chaveBusca[j];
-            aux_data_rrns[i] = r->ponteiroSubarvore[j];
+            aux_data_rrns[i] = r->RRNdoRegistro[j];
+            aux_right_children[i] = r->ponteiroSubarvore[j+1];
             j++;
         }
     }
@@ -200,10 +200,13 @@ void split(int key, int data_rrn, int* upkey, int* updata_rrn, int*upchild, reg_
     for(int i=0;i<promotion_position;i++){
         r->RRNdoRegistro[i] = aux_data_rrns[i];
         r->chaveBusca[i] = aux_keys[i];
+        r->ponteiroSubarvore[i+1] = aux_right_children[i];
 
         newr->RRNdoRegistro[i] = aux_data_rrns[i+promotion_position+1];
         newr->chaveBusca[i] = aux_keys[i+promotion_position+1];
+        newr->ponteiroSubarvore[i+1] = aux_right_children[i+promotion_position+1];
     }
+    newr->ponteiroSubarvore[0] = aux_right_children[promotion_position];
 
     newr->nroChavesNo = promotion_position;
     r->nroChavesNo = promotion_position;
