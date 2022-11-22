@@ -1,5 +1,5 @@
 #include "../include/funcionalidades.h"
-#include <stdbool.h>
+
 
 /**
  * @brief Função referente à funcionalidade 1, que lê um arquivo csv registros e grava os dados em um arquivo binário.
@@ -112,9 +112,10 @@ void comando3(char *nome_do_arquivo_entrada)
 
   int num_buscas = 0;
   int pos_campo = -1;
-  char buffer[24]; // buffer de string para o campo recebido
   int valor = 0;   // buffer de inteiro para o campo recebido
-  int num_registros_encontrados = 0;
+  char buffer[24]; // buffer de string para o campo recebido
+  int num_RRN = -1; // necessário para argumento da função le_arquivo
+  int num_registros = 0;
 
   reg_dados *novo_reg_dados = cria_registro_dados();
   reg_cabecalho *novo_reg_cabecalho = cria_registro_cabecalho();
@@ -133,65 +134,34 @@ void comando3(char *nome_do_arquivo_entrada)
   for (int i = 0; i < num_buscas; i++)
   { // enquanto as buscas não acabarem
     printf("Busca %d\n", (i + 1));
+    int num_registros = 0; // zera o contador de registros encontrados
+
     pos_campo = ler_campo();
-    if (pos_campo == 0 || pos_campo == 2 || pos_campo == 4)
-    {                   // se for um campo de inteiro
-      int num_RRN = -1; // necessário para argumento da função le_arquivo
+
+   if (pos_campo == 0 || pos_campo == 2 || pos_campo == 4) //  se for um campo de inteiro
+    { 
       scanf("%d", &valor);
-      num_registros_encontrados = 0; // reseta contador para nova busca
-      while (true)
-      {
-        if (le_arquivo(novo_reg_dados, arquivo_entrada, &num_RRN) != 0)
-        { // enquanto não termina o arquivo
-          if (novo_reg_dados->removido[0] != '1')
-          {
-            if (compara_campo_inteiro(pos_campo, valor, novo_reg_dados) == 1)
-            { // se o registro foi encontrado
-              printa_registro(novo_reg_dados);
-              num_registros_encontrados++;
-            }
-          }
-        }
-        else
-        { // se ler tudo e não achar sai do loop
-          if (num_registros_encontrados == 0)
-            printf("Registro inexistente.\n\n");
-          break;
-        }
+      while (le_arquivo(novo_reg_dados, arquivo_entrada, &num_RRN)!=0){
+        if (busca_inteiro(novo_reg_dados, arquivo_entrada, pos_campo, &num_registros, valor) == ENCONTRADO) printa_registro(novo_reg_dados);
       }
-    }
-    else if (pos_campo == 1 || pos_campo == 3 || pos_campo == 5 || pos_campo == 6)
-    { // se for campo de string
-      int num_RRN = -1;
+    } 
+    else
+    {
       scan_quote_string(buffer);
-      num_registros_encontrados = 0;
-      while (true)
-      {
-        if (le_arquivo(novo_reg_dados, arquivo_entrada, &num_RRN) != 0)
-        {
-          if (novo_reg_dados->removido[0] != '1')
-          {
-            if (compara_campo_string(pos_campo, buffer, novo_reg_dados) == 1)
-            {
-              printa_registro(novo_reg_dados);
-              num_registros_encontrados++;
-            }
-          }
-        }
-        else
-        {
-          if (num_registros_encontrados == 0)
-            printf("Registro inexistente.\n\n");
-          break;
-        }
+      while (le_arquivo(novo_reg_dados, arquivo_entrada, &num_RRN)!=0){
+        if (busca_string(novo_reg_dados, arquivo_entrada, pos_campo, &num_registros, buffer) == ENCONTRADO) printa_registro(novo_reg_dados);
       }
     }
+    
+    if (num_registros == NAO_ENCONTRADO) printf("Registro inexistente.\n\n");
+
     printf("Numero de paginas de disco: %d\n\n", novo_reg_cabecalho->nroPagDisco);
     fseek(arquivo_entrada, TAM_PAG_DISCO, SEEK_SET); // volta pro inicio do arquivo após o registro de cabeçalho para nova busca
+  
+    free(novo_reg_dados);
+    free(novo_reg_cabecalho);
+    fclose(arquivo_entrada);  
   }
-  free(novo_reg_dados);
-  free(novo_reg_cabecalho);
-  fclose(arquivo_entrada);
 }
 
 /**
@@ -209,9 +179,8 @@ void comando4(char *nome_do_arquivo_entrada)
 
   int num_buscas = 0;
   int pos_campo = -1;
-  char buffer[24]; // buffer de string para o campo recebido
   int valor = 0;   // buffer de inteiro para o campo recebido
-  int num_registros_removidos = 0;
+  char buffer[24]; // buffer de string para o campo recebido
 
   reg_dados *novo_reg_dados = cria_registro_dados();
   reg_cabecalho *novo_reg_cabecalho = cria_registro_cabecalho();
@@ -226,49 +195,32 @@ void comando4(char *nome_do_arquivo_entrada)
   }
 
   scanf("%d", &num_buscas);
-
+  int num_registros = 0;
+  
   for (int i = 0; i < num_buscas; i++)
   { // enquanto as buscas não acabarem
     pos_campo = ler_campo();
+    int num_RRN = -1; //reinicia o RRN para cada busca
+    
 
-    if (pos_campo == 0 || pos_campo == 2 || pos_campo == 4)
-    {                   // se for um campo de inteiro
-      int num_RRN = -1; // num_registros_removidos = 0
+    if (pos_campo == 0 || pos_campo == 2 || pos_campo == 4) //  se for um campo de inteiro
+    { 
       scanf("%d", &valor);
-
-      while (le_arquivo(novo_reg_dados, arquivo_entrada, &num_RRN) != 0)
-      { // enquanto não termina o arquivo
-        if (novo_reg_dados->removido[0] == '0')
-        { // se o registro nao foi removido
-          if (compara_campo_inteiro(pos_campo, valor, novo_reg_dados) == 1)
-          { // se o registro foi encontrado
-            apaga_registro(arquivo_entrada, novo_reg_dados, novo_reg_cabecalho, &num_RRN);
-            num_registros_removidos++;
-          }
-        }
+      while (le_arquivo(novo_reg_dados, arquivo_entrada, &num_RRN)!=0){
+        if (busca_inteiro(novo_reg_dados, arquivo_entrada, pos_campo, &num_registros, valor) == ENCONTRADO) apaga_registro(arquivo_entrada, novo_reg_dados, novo_reg_cabecalho, &num_RRN);
       }
-    }
-    else if (pos_campo == 1 || pos_campo == 3 || pos_campo == 5 || pos_campo == 6)
-    { // se for campo de string
-      int num_RRN = -1;
+    } 
+    else
+    {
       scan_quote_string(buffer);
-
-      while (le_arquivo(novo_reg_dados, arquivo_entrada, &num_RRN) != 0)
-      {
-        if (novo_reg_dados->removido[0] == '0')
-        {
-          if (compara_campo_string(pos_campo, buffer, novo_reg_dados) == 1)
-          {
-            apaga_registro(arquivo_entrada, novo_reg_dados, novo_reg_cabecalho, &num_RRN);
-            num_registros_removidos++;
-          }
-        }
+      while (le_arquivo(novo_reg_dados, arquivo_entrada, &num_RRN)!=0){
+        if (busca_string(novo_reg_dados, arquivo_entrada, pos_campo, &num_registros, buffer) == ENCONTRADO) apaga_registro(arquivo_entrada, novo_reg_dados, novo_reg_cabecalho, &num_RRN);
       }
     }
     fseek(arquivo_entrada, TAM_PAG_DISCO, SEEK_SET);
   }
-
-  novo_reg_cabecalho->nroRegRem += num_registros_removidos;
+  
+  novo_reg_cabecalho->nroRegRem += num_registros;
   fseek(arquivo_entrada, 0, SEEK_SET);
   escrever_no_arquivo_cabecalho(arquivo_entrada, novo_reg_cabecalho);
 
