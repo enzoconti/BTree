@@ -406,6 +406,7 @@ void comando8(){
   char buffer[24]; // buffer de string para o campo recebido
   int valor = 0;   // buffer de inteiro para o campo recebido
   int num_registros_encontrados = 0;
+  int num_paginas_arvore_lidas = 0;
 
   scanf("%d", &num_buscas);
 
@@ -437,7 +438,13 @@ void comando8(){
   for (int i = 0; i < num_buscas; i++){ // enquanto as buscas não acabarem
     printf("Busca %d\n", (i + 1));
     pos_campo = ler_campo();
-    if(pos_campo == 0) busca_indexada(valor, num_registros_encontrados, novo_reg_cabecalho_arvore, novo_reg_encontrado, arquivo_dados, arquivo_indice, novo_reg_dados);
+    num_paginas_arvore_lidas = 0;
+
+    if(pos_campo == 0){
+      busca_indexada(valor, num_registros_encontrados, novo_reg_cabecalho_arvore, novo_reg_encontrado, arquivo_dados, arquivo_indice, novo_reg_dados, &num_paginas_arvore_lidas);
+      printf("Numero de paginas de disco: %d\n\n", (novo_reg_cabecalho->nroPagDisco + num_paginas_arvore_lidas + 1));
+    }
+
     else if (pos_campo == 2 || pos_campo == 4){// se for um campo de inteiro
 
       int num_RRN = -1; // necessário para argumento da função le_arquivo
@@ -453,6 +460,7 @@ void comando8(){
             { // se o registro foi encontrado
               printa_registro(novo_reg_dados);
               num_registros_encontrados++;
+              printf("Numero de paginas de disco: %d\n\n", novo_reg_cabecalho->nroPagDisco);
             }
           }
         }
@@ -479,6 +487,7 @@ void comando8(){
             {
               printa_registro(novo_reg_dados);
               num_registros_encontrados++;
+              printf("Numero de paginas de disco: %d\n\n", novo_reg_cabecalho->nroPagDisco);
             }
           }
         }
@@ -490,7 +499,7 @@ void comando8(){
         }
       }
     }
-    printf("Numero de paginas de disco: %d\n\n", novo_reg_cabecalho->nroPagDisco);
+    //printf("Numero de paginas de disco: %d\n\n", (novo_reg_cabecalho->nroPagDisco + num_paginas_arvore_lidas));
     fseek(arquivo_dados, TAM_PAG_DISCO, SEEK_SET); // volta pro inicio do arquivo após o registro de cabeçalho para nova busca
     fseek(arquivo_indice, TAM_PAG_ARVORE, SEEK_SET); // volta pro inicio do arquivo após o registro de cabeçalho para nova busca
   }
@@ -502,7 +511,7 @@ void comando8(){
   fclose(arquivo_indice);
 }
 
-
+/*
 void comando9(){
 
   char *nome_arquivo_dados, *nome_arquivo_indice;
@@ -569,3 +578,4 @@ void comando9(){
   binarioNaTela(nome_arquivo_dados);
   binarioNaTela(nome_arquivo_indice);
 }
+*/

@@ -11,12 +11,13 @@
  * @return int Responsável por informar se foi ou não encontrado o registro de dados buscado a partir da chave
  */
 
-int busca_arvore(reg_cabecalho_arvore* reg, int* pos, reg_dados_indice *reg_arvore_encontrado, int chave, FILE* arq){
+int busca_arvore(reg_cabecalho_arvore* reg, int* pos, reg_dados_indice *reg_arvore_encontrado, int chave, FILE* arq, int* num_paginas_lidas){
 
     if(reg->noRaiz == -1) return NAO_ENCONTRADO;//caso base, não existe arvore
 
     //Inicializa-se a recursão a partir do RRN do nó da raiz da árvore
-    return _busca_arvore(reg->noRaiz, pos, reg_arvore_encontrado, chave, arq);
+    return _busca_arvore(reg->noRaiz, pos, reg_arvore_encontrado, chave, arq, num_paginas_lidas);
+
 }
 
 /**
@@ -29,21 +30,38 @@ int busca_arvore(reg_cabecalho_arvore* reg, int* pos, reg_dados_indice *reg_arvo
  * @param arq Ponteiro para o arquivo de índice em que será realizado a busca
  * @return int Responsável por informar se foi ou não encontrado o registro de dados buscado a partir da chave
  */
-int _busca_arvore(int RRN, int *pos, reg_dados_indice *reg_arvore_encontrado, int chave, FILE* arq){
+int _busca_arvore(int RRN, int *pos, reg_dados_indice *reg_arvore_encontrado, int chave, FILE* arq, int* num_paginas_lidas){
 
     if(RRN == -1) return NAO_ENCONTRADO;//Caso base, nó pai folha
 
+    (*num_paginas_lidas)++;
+
     reg_dados_indice* novo_reg_dados = cria_registro_dados_indice();
     ler_dados_indice_porRRN(arq, RRN, novo_reg_dados);//lê o nó atual para RAM
-
+    
     int flag_retorno = busca_na_pagina(chave, pos, novo_reg_dados); //busca na pagina (nó) atual
     if(flag_retorno == ENCONTRADO){//se encontrado
-        *reg_arvore_encontrado = *novo_reg_dados; // reg_arvore_encontrado se torna o novo_reg_dados 
+        strcpy(reg_arvore_encontrado->folha, novo_reg_dados->folha);
+        reg_arvore_encontrado->nroChavesNo = novo_reg_dados->nroChavesNo;
+        reg_arvore_encontrado->alturaNo = novo_reg_dados->alturaNo;
+        reg_arvore_encontrado->RRNdoNo = novo_reg_dados->RRNdoNo;
+
+        for(int i = 0; i < ORDEM_ARVORE_B; i++){
+            reg_arvore_encontrado->ponteiroSubarvore[i] = novo_reg_dados->ponteiroSubarvore[i];
+        }
+        for(int i = 0; i < ORDEM_ARVORE_B-1; i++){
+            reg_arvore_encontrado->chaveBusca[i] = novo_reg_dados->chaveBusca[i];
+        }
+        for(int i = 0; i < ORDEM_ARVORE_B-1; i++){
+            reg_arvore_encontrado->RRNdoRegistro[i] = novo_reg_dados->RRNdoRegistro[i];
+        }
+
+        //*reg_arvore_encontrado = *novo_reg_dados; // reg_arvore_encontrado se torna o novo_reg_dados 
         return ENCONTRADO;
     }
     else{
         //Chama busca recursiva, com o novo RRN referente ao ponteiro para subArvore na posição "pos"
-        return(_busca_arvore(novo_reg_dados->ponteiroSubarvore[*pos], pos, reg_arvore_encontrado, chave, arq));
+        return(_busca_arvore(novo_reg_dados->ponteiroSubarvore[*pos], pos, reg_arvore_encontrado, chave, arq, num_paginas_lidas));
     }
 }
 
@@ -59,15 +77,20 @@ int _busca_arvore(int RRN, int *pos, reg_dados_indice *reg_arvore_encontrado, in
  * @param arquivo_indice Ponteiro para o arquivo de índice
  * @param novo_reg_dados Ponteiro para registro de dados que armazenará as informações do registro encontrado no arquivo de dados
  */
-void busca_indexada(int valor, int num_registros_encontrados, reg_cabecalho_arvore *novo_reg_cabecalho_arvore, reg_dados_indice *novo_reg_encontrado, FILE* arquivo_dados, FILE* arquivo_indice, reg_dados *novo_reg_dados){
-    int pos;//posicao no arquivo de indice
+void busca_indexada(int valor, int num_registros_encontrados, reg_cabecalho_arvore *novo_reg_cabecalho_arvore, reg_dados_indice *novo_reg_encontrado, FILE* arquivo_dados, FILE* arquivo_indice, reg_dados *novo_reg_dados, int* num_paginas_lidas){
+    int pos = 0;//posicao no arquivo de indice
 
     scanf("%d", &valor);
     num_registros_encontrados = 0;
+    (*num_paginas_lidas)++;//contar a leitura do cabeçalho
 
-    int flag_retorno = busca_arvore(novo_reg_cabecalho_arvore, &pos, novo_reg_encontrado, valor, arquivo_indice);
+    int flag_retorno = busca_arvore(novo_reg_cabecalho_arvore, &pos, novo_reg_encontrado, valor, arquivo_indice, num_paginas_lidas);
+
     if(flag_retorno != NAO_ENCONTRADO){//encontrou registro
-        fseek(arquivo_dados, TAM_PAG_DISCO + (*novo_reg_encontrado->RRNdoRegistro)*TAM_REG_DADOS, SEEK_SET);
+        int byteoffset = TAM_PAG_DISCO + (novo_reg_encontrado->RRNdoRegistro[pos])*TAM_REG_DADOS;
+        fseek(arquivo_dados, byteoffset, SEEK_SET);
+        fread(novo_reg_dados->removido,sizeof(char), 1, arquivo_dados);
+        novo_reg_dados->removido[1] = '\0';
         le_registro(novo_reg_dados, arquivo_dados);
 
         if (novo_reg_dados->removido[0] != '1'){
@@ -79,7 +102,7 @@ void busca_indexada(int valor, int num_registros_encontrados, reg_cabecalho_arvo
         }
     }
 }
-
+/*
 void insercao_btree(FILE*fp, reg_cabecalho_arvore*h, int key, int data_rrn_4insertion){
     int flag_retorno;
     int *promoted_child, *promoted_key, *promoted_data_rrn;
@@ -124,7 +147,7 @@ void insercao_btree(FILE*fp, reg_cabecalho_arvore*h, int key, int data_rrn_4inse
     }
 
 }
-
+*/
 
 /**
  * @brief funcao recursiva que insere os nodes internos da btree
@@ -274,20 +297,20 @@ void split(int key, int data_rrn,int right_child, int* upkey, int* updata_rrn, i
 
 int busca_na_pagina(int key, int* pos, reg_dados_indice* r){
     int i=0;
-    printf("dentro de busca pagina\n");
     // a posicao onde deveria estar ou esta eh antes da primeira chave maior do que a chave buscada
     for(i=0;i<r->nroChavesNo;i++){
         if(key <= r->chaveBusca[i]){
             *pos = i;
 
-            if(r->chaveBusca[*pos] == key) { printf("retornando encontrado\n"); return ENCONTRADO;}
-            else{printf("retornando nao encontrado\n"); return NAO_ENCONTRADO;}
+            if(r->chaveBusca[*pos] == key){
+                return ENCONTRADO;
+            }
+            else return NAO_ENCONTRADO;
         }
     }
 
     if(i == r->nroChavesNo){ // isso significa que nao encontrou nenhuma chave maior que ela
         *pos = i; // deveria estar por ultimo (no caso de a pagina ja estar cheia, isso estara fora dos array bounds e indica pagina cheia  )
-        printf("retornando nao encontrado no caso de i==nroChaves\n");
         return NAO_ENCONTRADO;
     }
 

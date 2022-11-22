@@ -33,7 +33,6 @@ void le_registro(reg_dados* reg, FILE* arquivo_entrada){
   le_campos_tam_variavel(reg,arquivo_entrada);
 }
 
-
 /*
 
 Função responsável por ler os campos de tamanho fixo de um registro de dados. Recebe um ponteiro para

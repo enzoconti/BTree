@@ -42,7 +42,7 @@ int main(){
             comando8();
             break;
         case 9:
-            comando9();
+            //comando9();
             break;
         case 10:
             //comando10();
