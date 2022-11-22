@@ -30,6 +30,7 @@ TAM_NOME_ARQUIVO -> define um tamanho máximo de um nome de arquivo em bytes (20
 
 #define ENCONTRADO 1
 #define NAO_ENCONTRADO 0
+#define SEARCH_ERROR -1
 
 /*
 

@@ -2,6 +2,7 @@
 #ifndef BTREE_H
 #define BTREE_H
 #include "topologiaRede.h"
+#include "btree_rw_e_io.h"
 
 #define PROMOTION 1
 #define NO_PROMOTION 0

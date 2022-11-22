@@ -4,6 +4,7 @@
 #ifndef BTREERW_H
 #define BTREERW_H
 #include "topologiaRede.h"
+#include "funcoes_de_escrita.h"
 #include "btree_rw_e_io.h"
 
 void escrever_no_arquivo_cabecalho_arvore(FILE*, reg_cabecalho_arvore*);

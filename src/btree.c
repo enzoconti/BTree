@@ -34,7 +34,7 @@ int _busca_arvore(int RRN, int *pos, reg_dados_indice *reg_arvore_encontrado, in
     if(RRN == -1) return NAO_ENCONTRADO;//Caso base, nó pai folha
 
     reg_dados_indice* novo_reg_dados = cria_registro_dados_indice();
-    ler_dados_indice_porRRN(arq, RRN, &novo_reg_dados);//lê o nó atual para RAM
+    ler_dados_indice_porRRN(arq, RRN, novo_reg_dados);//lê o nó atual para RAM
 
     int flag_de_retorno = busca_na_pagina(chave, pos, novo_reg_dados); //busca na pagina (nó) atual
     if(flag_de_retorno == ENCONTRADO){//se encontrado
@@ -78,7 +78,7 @@ void busca_indexada(int valor, int num_registros_encontrados, reg_cabecalho_arvo
         if (num_registros_encontrados == 0) printf("Registro inexistente.\n\n");
     }
     }
-}const
+}
 
 void insercao_btree(FILE*fp, reg_cabecalho_arvore*h, int key, int data_rrn_4insertion){
     int flag_retorno;
@@ -86,8 +86,9 @@ void insercao_btree(FILE*fp, reg_cabecalho_arvore*h, int key, int data_rrn_4inse
     reg_dados_indice* new_root;
     reg_dados_indice* reg_buscado = cria_registro_dados_indice();
     int* found_pos, flag_busca;
-    flag_busca = busca_arvore(h->noRaiz, found_pos, reg_buscado, key, fp);
-    printf("has searched tree, returned flag_busca=%d, found_pos=%d and reg_buscado: \n",flag_busca,found_pos);
+
+    flag_busca = busca_arvore(h, found_pos, reg_buscado, key, fp);
+    printf("has searched tree, returned flag_busca=%d, found_pos=%d and reg_buscado: \n",flag_busca,*found_pos);
     printa_registro_arvore(reg_buscado);
 
     if(flag_busca == ENCONTRADO) return; // chave ja presente na arvore, nao insere
@@ -98,7 +99,7 @@ void insercao_btree(FILE*fp, reg_cabecalho_arvore*h, int key, int data_rrn_4inse
 
     if(flag_retorno == PROMOTION){ // houve split na raiz ou a arvore estava vazia
         printf("inside promotional conditional\n");
-        // cria nova raiz
+        // nova raiz
         new_root = cria_registro_dados_indice();
 
         new_root->alturaNo = h->alturaArvore + 1;
@@ -119,7 +120,7 @@ void insercao_btree(FILE*fp, reg_cabecalho_arvore*h, int key, int data_rrn_4inse
         h->RRNproxNo++;
         printf("writing data_btree record(new root):\n");
         printa_registro_arvore(new_root);
-        escrever_dados_indice_porRRN(fp, new_root->RRNdoNo,&new_root); // CRIAR ESSA FUNCAO
+        escrever_dados_indice_porRRN(fp, new_root->RRNdoNo,new_root); // CRIAR ESSA FUNCAO
     }
 
 }
@@ -170,7 +171,7 @@ int _insercao_btree(FILE* fp,reg_cabecalho_arvore* h, reg_dados_indice* reg_arvo
     // flag_retorno == PROMOTION a partir daqui, pois NO_PROMOTION e INSERTION_ERROR foram descartados
     if(reg_arvore_atual->nroChavesNo < ORDEM_ARVORE_B - 1){ // significa que esse no tem espaco
         flag_insercao = insere_na_pagina(reg_arvore_atual,*promoted_below_key,*promoted_below_data_rrn,*promoted_below_child);
-        escrever_dados_indice_porRRN(fp,reg_arvore_atual->RRNdoNo,&reg_arvore_atual); // escreve os dados atualizados da pagina // CRIAR ESSA FUNCAO
+        escrever_dados_indice_porRRN(fp,reg_arvore_atual->RRNdoNo,reg_arvore_atual); // escreve os dados atualizados da pagina // CRIAR ESSA FUNCAO
         
 
         if(flag_insercao == ENCONTRADO) return INSERTION_ERROR;
@@ -187,8 +188,8 @@ int _insercao_btree(FILE* fp,reg_cabecalho_arvore* h, reg_dados_indice* reg_arvo
         split(*promoted_below_key,*promoted_below_data_rrn,*promoted_below_child,promoted_key,promoted_data_rrn,promoted_child,reg_arvore_atual,newreg_arvore);
 
         // reescreve os dados de ambas as paginas da btree
-        escrever_dados_indice_porRRN(fp,reg_arvore_atual->RRNdoNo,&reg_arvore_atual); // CRIAR ESSA FUNCAO
-        escrever_dados_indice_porRRN(fp,newreg_arvore->RRNdoNo,&newreg_arvore); // CRIAR ESSA FUNCAO
+        escrever_dados_indice_porRRN(fp,reg_arvore_atual->RRNdoNo,reg_arvore_atual); // CRIAR ESSA FUNCAO
+        escrever_dados_indice_porRRN(fp,newreg_arvore->RRNdoNo,newreg_arvore); // CRIAR ESSA FUNCAO
 
         return PROMOTION;
     }
@@ -287,6 +288,8 @@ int busca_na_pagina(int key, int* pos, reg_dados_indice* r){
         *pos = i; // deveria estar por ultimo (no caso de a pagina ja estar cheia, isso estara fora dos array bounds e indica pagina cheia  )
         return NAO_ENCONTRADO;
     }
+
+    return SEARCH_ERROR;
 }
 
 int insere_na_pagina(reg_dados_indice* r,int insert_key, int insert_data_rrn, int insert_child){
@@ -294,7 +297,7 @@ int insere_na_pagina(reg_dados_indice* r,int insert_key, int insert_data_rrn, in
     
     // buscamos a posicao onde deveria estar
     flag_insercao = busca_na_pagina(insert_key,&pos,r);
-    if(flag_insercao == ENCONTRADO) return;
+    if(flag_insercao == ENCONTRADO) return ENCONTRADO;
 
     // esse loop percorre o array de traz pra frente deslocando os valores pra frente pra abrir espaco pra insercao
     // nesse caso desloca-se a chave de busca(chaveBusca[]), os filhos(ponteiroSubarvore[]) e os registros de dados(RRNdoRegistro[])
@@ -311,4 +314,6 @@ int insere_na_pagina(reg_dados_indice* r,int insert_key, int insert_data_rrn, in
     r->ponteiroSubarvore[pos+1] = insert_child; // pos+1 pois eh o filho da direita
 
     r->nroChavesNo++;
+
+    return NAO_ENCONTRADO;
 }
