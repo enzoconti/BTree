@@ -92,6 +92,8 @@ typedef struct reg_cabecalho_arvore{
     int RRNproxNo;
 } reg_cabecalho_arvore;
 
+void print_reg_dados_indice(reg_dados_indice* reg);
+
 reg_cabecalho* cria_registro_cabecalho();
 reg_dados* cria_registro_dados();
 reg_cabecalho_arvore* cria_registro_cabecalho_arvore();

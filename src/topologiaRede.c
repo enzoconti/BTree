@@ -88,4 +88,25 @@ reg_dados_indice* cria_registro_dados_indice(){
 
     return novo_reg;
 }
-    
+
+void print_reg_dados_indice(reg_dados_indice* reg){
+    printf("Folha: %s\n", reg->folha);
+    printf("nroChavesNo: %d\n", reg->nroChavesNo);
+    printf("alturaNo: %d\n", reg->alturaNo);
+    printf("RRNdoNo: %d\n", reg->RRNdoNo);
+    printf("ponteiroSubarvore1: %d\n", reg->ponteiroSubarvore[0]);
+    printf("ponteiroSubarvore2: %d\n", reg->ponteiroSubarvore[1]);
+    printf("ponteiroSubarvore3: %d\n", reg->ponteiroSubarvore[2]);
+    printf("ponteiroSubarvore4: %d\n", reg->ponteiroSubarvore[3]);
+    printf("ponteiroSubarvore5: %d\n", reg->ponteiroSubarvore[4]);
+
+    printf("chaveBusca1: %d\n", reg->chaveBusca[0]);
+    printf("chaveBusca2: %d\n", reg->chaveBusca[1]);
+    printf("chaveBusca3: %d\n", reg->chaveBusca[2]);
+    printf("chaveBusca4: %d\n", reg->chaveBusca[3]);
+
+    printf("RRNdoRegistro1: %d\n", reg->RRNdoRegistro[0]);
+    printf("RRNdoRegistro2: %d\n", reg->RRNdoRegistro[1]);
+    printf("RRNdoRegistro3: %d\n", reg->RRNdoRegistro[2]);
+    printf("RRNdoRegistro4: %d\n", reg->RRNdoRegistro[3]);
+}

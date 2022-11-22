@@ -13,7 +13,7 @@ int main(){
     int comando = 0;
 
     scanf("%d", &comando);
-    scanf("%s", nome_do_arquivo_entrada);
+    //scanf("%s", nome_do_arquivo_entrada);
 
     switch(comando){
         case 1:
