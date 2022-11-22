@@ -22,7 +22,7 @@ TAM_NOME_ARQUIVO -> define um tamanho máximo de um nome de arquivo em bytes (20
 #define TAM_REG_DADOS 64
 #define TAM_REG_CABECALHO 21
 #define TAM_NOME_ARQUIVO 20
-#define TAM_PAG_ARVORE 73
+#define TAM_PAG_ARVORE 65
 #define TAM_REG_CABECALHO_ARVORE 17
 #define TAM_REG_DADOS_ARVORE 65
 #define TAM_NOME_ARQUIVO 20

@@ -583,7 +583,7 @@ void comando9(){
   ler_reg_cabecalho_arvore(btree_fp, h_btree); // CRIAR ESSA FUNCAO
   printf("btree header has been readen as:\n");
   printHeaderArvore(h_btree);
-  if (checa_consistencia(h) != 0){
+  if (checa_consistencia_indice(h_btree) != 0){
     free(h_btree);
     fclose(btree_fp);
     return;

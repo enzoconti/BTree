@@ -34,7 +34,7 @@ void ler_reg_cabecalho_arvore(FILE* arquivo, reg_cabecalho_arvore* reg){
     fread(&reg->alturaArvore, sizeof(int), 1, arquivo);
     fread(&reg->RRNproxNo, sizeof(int), 1, arquivo);
     
-    fseek(arquivo, TAM_PAG_ARVORE - TAM_REG_CABECALHO_ARVORE, SEEK_CUR);
+    fseek(arquivo, TAM_PAG_ARVORE, SEEK_SET);
 }
 
 /**
@@ -82,7 +82,9 @@ void ler_dados_indice(FILE* arquivo, reg_dados_indice* reg){
     fread(&(reg->folha[0]), sizeof(char), 1, arquivo);
     reg->folha[1] = '\0';
 
+
     fread(&reg->nroChavesNo, sizeof(int), 1, arquivo);
+    fread(&reg->alturaNo, sizeof(int),1,arquivo);
     fread(&reg->RRNdoNo, sizeof(int), 1, arquivo);
 
     for(int i = 0; i < ORDEM_ARVORE_B-1; i++){
@@ -102,12 +104,13 @@ void ler_dados_indice(FILE* arquivo, reg_dados_indice* reg){
  */
 void ler_dados_indice_porRRN(FILE* arquivo, int RRN, reg_dados_indice* reg){
 
-    int byte_offset = TAM_REG_CABECALHO_ARVORE + RRN*TAM_REG_DADOS_ARVORE;
+    int byte_offset = TAM_PAG_ARVORE + RRN*TAM_REG_DADOS_ARVORE;    
     fseek(arquivo, byte_offset , SEEK_SET);
     ler_dados_indice(arquivo, reg);
 }
 
  void printHeaderArvore(reg_cabecalho_arvore* h_btree){
+    printf("status: %s\n", h_btree->status);
     printf("noRaiz: %d\n",h_btree->noRaiz);
     printf("nroChavesTotal: %d\n",h_btree->nroChavesTotal);
     printf("alturaArvore: %d\n",h_btree->alturaArvore);
@@ -116,9 +119,10 @@ void ler_dados_indice_porRRN(FILE* arquivo, int RRN, reg_dados_indice* reg){
  }
 
  void printa_registro_arvore(reg_dados_indice *btree_reg){
-    printf("folha: %s\n",btree_reg->folha);
+    printf("folha: %c\n", btree_reg->folha[0]);
     printf("nroChavesNo: %d\n", btree_reg->nroChavesNo);
-    printf("RRNdoNo: %d", btree_reg->RRNdoNo);
+    printf("alturaDoNO: %d\n", btree_reg->alturaNo);
+    printf("RRNdoNo: %d\n", btree_reg->RRNdoNo);
     for(int i=0;i<ORDEM_ARVORE_B;i++){
         printf("\tchaveBusca[%d]: %d",i,btree_reg->chaveBusca[i]);
     }
@@ -128,7 +132,7 @@ void ler_dados_indice_porRRN(FILE* arquivo, int RRN, reg_dados_indice* reg){
     }
     printf("\n");
     for(int i=0;i<ORDEM_ARVORE_B+1;i++){
-        printf("ponteiroSubarvore[%d]: %d",i,btree_reg->ponteiroSubarvore[i]);
+        printf("ponteiroSubarvore[%d]: %d ",i,btree_reg->ponteiroSubarvore[i]);
     }
     printf("\n\n");
  }

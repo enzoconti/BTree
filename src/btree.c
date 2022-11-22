@@ -35,6 +35,8 @@ int _busca_arvore(int RRN, int *pos, reg_dados_indice *reg_arvore_encontrado, in
 
     reg_dados_indice* novo_reg_dados = cria_registro_dados_indice();
     ler_dados_indice_porRRN(arq, RRN, novo_reg_dados);//lê o nó atual para RAM
+    printf("dentro de _busca_arvore e li o novo_Reg_dados no RRN=%d antes de busca_na_pagina como:\n",RRN);
+    printa_registro_arvore(novo_reg_dados);
 
     int flag_retorno = busca_na_pagina(chave, pos, novo_reg_dados); //busca na pagina (nó) atual
     if(flag_retorno == ENCONTRADO){//se encontrado
@@ -142,7 +144,7 @@ void insercao_btree(FILE*fp, reg_cabecalho_arvore*h, int key, int data_rrn_4inse
 int _insercao_btree(FILE* fp,reg_cabecalho_arvore* h, reg_dados_indice* reg_arvore_atual, int key, int data_rrn_4insertion, int* promoted_child, int* promoted_key, int* promoted_data_rrn){
     int posicao_key, flag_retorno, flag_insercao=0;
 
-    if(reg_arvore_atual == NULL){ // atingimos uma pagina inexistente - rrn vazio
+    if(reg_arvore_atual == NULL || reg_arvore_atual->RRNdoNo == -1){ // atingimos uma pagina inexistente - rrn vazio
         *promoted_key = key;
         *promoted_data_rrn = data_rrn_4insertion;
         *promoted_child = -1; // chave promovida vai sem nenhum filho
@@ -274,9 +276,10 @@ void split(int key, int data_rrn,int right_child, int* upkey, int* updata_rrn, i
 
 int busca_na_pagina(int key, int* pos, reg_dados_indice* r){
     int i=0;
-    printf("dentro de busca pagina\n");
+    printf("dentro de busca pagina procurando a key %d\n",key);
     // a posicao onde deveria estar ou esta eh antes da primeira chave maior do que a chave buscada
     for(i=0;i<r->nroChavesNo;i++){
+        printf("dentro do loop de busca_na_pagina com i=%d e chave_busca[i]=%d, procurando chave %d\n",i,r->chaveBusca[i],key);
         if(key <= r->chaveBusca[i]){
             *pos = i;
 
