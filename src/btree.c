@@ -36,8 +36,8 @@ int _busca_arvore(int RRN, int *pos, reg_dados_indice *reg_arvore_encontrado, in
     reg_dados_indice* novo_reg_dados = cria_registro_dados_indice();
     ler_dados_indice_porRRN(arq, RRN, novo_reg_dados);//lê o nó atual para RAM
 
-    int flag_de_retorno = busca_na_pagina(chave, pos, novo_reg_dados); //busca na pagina (nó) atual
-    if(flag_de_retorno == ENCONTRADO){//se encontrado
+    int flag_retorno = busca_na_pagina(chave, pos, novo_reg_dados); //busca na pagina (nó) atual
+    if(flag_retorno == ENCONTRADO){//se encontrado
         *reg_arvore_encontrado = *novo_reg_dados; // reg_arvore_encontrado se torna o novo_reg_dados 
         return ENCONTRADO;
     }
@@ -60,23 +60,23 @@ int _busca_arvore(int RRN, int *pos, reg_dados_indice *reg_arvore_encontrado, in
  * @param novo_reg_dados Ponteiro para registro de dados que armazenará as informações do registro encontrado no arquivo de dados
  */
 void busca_indexada(int valor, int num_registros_encontrados, reg_cabecalho_arvore *novo_reg_cabecalho_arvore, reg_dados_indice *novo_reg_encontrado, FILE* arquivo_dados, FILE* arquivo_indice, reg_dados *novo_reg_dados){
-    int* pos;//posicao no arquivo de indice
+    int pos;//posicao no arquivo de indice
 
     scanf("%d", &valor);
     num_registros_encontrados = 0;
 
-    int flag_retorno = busca_arvore(novo_reg_cabecalho_arvore, pos, novo_reg_encontrado, valor, arquivo_indice);
-    if(flag_retorno != 0){//encontrou registro
-    fseek(arquivo_dados, TAM_PAG_DISCO + (*novo_reg_encontrado->RRNdoRegistro)*TAM_REG_DADOS, SEEK_SET);
-    le_registro(novo_reg_dados, arquivo_dados);
+    int flag_retorno = busca_arvore(novo_reg_cabecalho_arvore, &pos, novo_reg_encontrado, valor, arquivo_indice);
+    if(flag_retorno != NAO_ENCONTRADO){//encontrou registro
+        fseek(arquivo_dados, TAM_PAG_DISCO + (*novo_reg_encontrado->RRNdoRegistro)*TAM_REG_DADOS, SEEK_SET);
+        le_registro(novo_reg_dados, arquivo_dados);
 
-    if (novo_reg_dados->removido[0] != '1'){
-        printa_registro(novo_reg_dados);
-        num_registros_encontrados++;
-    }
-    else{
-        if (num_registros_encontrados == 0) printf("Registro inexistente.\n\n");
-    }
+        if (novo_reg_dados->removido[0] != '1'){
+            printa_registro(novo_reg_dados);
+            num_registros_encontrados++;
+        }
+        else{
+            if (num_registros_encontrados == 0) printf("Registro inexistente.\n\n");
+        }
     }
 }
 
@@ -279,7 +279,9 @@ int busca_na_pagina(int key, int* pos, reg_dados_indice* r){
         if(key <= r->chaveBusca[i]){
             *pos = i;
 
-            if(r->chaveBusca[*pos] == key) return ENCONTRADO;
+            if(r->chaveBusca[*pos] == key){
+                return ENCONTRADO;
+            }
             else return NAO_ENCONTRADO;
         }
     }

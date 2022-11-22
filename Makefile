@@ -1,6 +1,6 @@
 CC = gcc
-MAIN = main.c
-AUXFILES = funcoes_de_abertura.c funcoes_de_busca.c funcoes_de_escrita.c funcoes_de_leitura.c funcionalidades.c funcoes_auxiliares.c funcoes_checagem.c funcoes_fornecidas.c topologiaRede.c
+MAIN = src/main.c
+AUXFILES = src/btree.c src/btree_rw_e_io.c src/funcoes_de_abertura.c src/funcoes_de_busca.c src/funcoes_de_escrita.c src/funcoes_de_leitura.c src/funcionalidades.c src/funcoes_auxiliares.c src/funcoes_checagem.c src/funcoes_fornecidas.c src/topologiaRede.c
 EXECNAME = main
 
 all:
