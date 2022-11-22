@@ -61,8 +61,7 @@ void comando2(char *nome_do_arquivo_entrada)
 {
 
   FILE *arquivo_entrada = abrir_leitura_binario(nome_do_arquivo_entrada);
-  if (arquivo_entrada == NULL)
-    return;
+  if (arquivo_entrada == NULL) return;
 
   reg_dados *novo_reg_dados = cria_registro_dados();
   reg_cabecalho *novo_reg_cabecalho = cria_registro_cabecalho();
@@ -294,9 +293,9 @@ void comando5(char *nome_do_arquivo_entrada)
   if (arquivo_entrada == NULL)
     return;
 
-  int num_registros_total = 0;
+  //int num_registros_total = 0;
   int num_registros_adicionados = 0;
-  int byte_offset = 0;
+  //int byte_offset = 0;
 
   reg_cabecalho *novo_reg_cabecalho = cria_registro_cabecalho();
   reg_dados *novo_reg_dados = cria_registro_dados();
@@ -315,9 +314,12 @@ void comando5(char *nome_do_arquivo_entrada)
 
   for (int i = 0; i < num_registros_adicionados; i++)
   { // enquanto os registros a serem adicionados não acabarem
-
+    
     ler_registros_dados_teclado(novo_reg_dados);
-
+    int rrn_inserido=-1;
+    rrn_inserido = insere_registro_dados(arquivo_entrada,novo_reg_cabecalho,novo_reg_dados);
+    printf("rrn inserido = %d\n",rrn_inserido);
+    /*
     // verifica se topo é -1, se é -1, então não há registros removidos
     if (novo_reg_cabecalho->topo == -1)
     {
@@ -348,7 +350,7 @@ void comando5(char *nome_do_arquivo_entrada)
       }
       else
       { // se registro não estiver removido, erro
-        free(novo_reg_dados);
+        free(novo_reg_dados);F
         free(novo_reg_cabecalho);
         fclose(arquivo_entrada);
         return;
@@ -359,7 +361,8 @@ void comando5(char *nome_do_arquivo_entrada)
   {
     novo_reg_cabecalho->nroPagDisco = calcula_pag_disco(num_registros_total);
   }
-
+  */
+  }
   strcpy(novo_reg_cabecalho->status, "1");
   fseek(arquivo_entrada, 0, SEEK_SET);
   escrever_no_arquivo_cabecalho(arquivo_entrada, novo_reg_cabecalho);
@@ -378,8 +381,7 @@ void comando5(char *nome_do_arquivo_entrada)
  *
  * @param nome_do_arquivo_entrada  uma string contendo o nome do arquivo binário de entrada.
  */
-void comando6(char *nome_do_arquivo_entrada)
-{
+void comando6(char *nome_do_arquivo_entrada){
 
   int contador_reg = 0;
 
@@ -437,8 +439,10 @@ void comando6(char *nome_do_arquivo_entrada)
  * 
  */
 void comando8(){
-
   char *nome_arquivo_dados, *nome_arquivo_indice;
+
+  scanf("%ms", &nome_arquivo_dados);
+  scanf("%ms", &nome_arquivo_indice);
 
   FILE* arquivo_dados = abrir_leitura_binario(nome_arquivo_dados);
   if(arquivo_dados == NULL) return;
@@ -451,8 +455,6 @@ void comando8(){
   int valor = 0;   // buffer de inteiro para o campo recebido
   int num_registros_encontrados = 0;
 
-  scanf("%s", nome_arquivo_dados);
-  scanf("%s", nome_arquivo_indice);
   scanf("%d", &num_buscas);
 
   reg_dados *novo_reg_dados = cria_registro_dados();
@@ -550,13 +552,14 @@ void comando8(){
 
 
 void comando9(){
-  
+
   char *nome_arquivo_dados, *nome_arquivo_indice;
   int n_insercoes, rrn_reg_dados;
   FILE *data_fp, *btree_fp;
   reg_dados rd;
-  scanf("%s", nome_arquivo_dados);
-  scanf("%s", nome_arquivo_indice);
+  scanf("%ms", &nome_arquivo_dados);
+  scanf("%ms", &nome_arquivo_indice);
+  printf("func9 has gotten arq_dados = %s and arq_indice=%s\n",nome_arquivo_dados,nome_arquivo_indice);
 
   data_fp = abrir_leitura_e_escrita_binario(nome_arquivo_dados);
   btree_fp = abrir_leitura_e_escrita_binario(nome_arquivo_indice);
@@ -564,6 +567,8 @@ void comando9(){
   reg_cabecalho *h;
   h = cria_registro_cabecalho();
   ler_reg_cabecalho(data_fp, h); // CRIAR ESSA FUNCAO
+  printf("data header has been readen as:\n");
+  printHeader(h);
 
   if (checa_consistencia(h) != 0)
   {
@@ -576,6 +581,8 @@ void comando9(){
   reg_cabecalho_arvore *h_btree;
   h_btree = cria_registro_cabecalho_arvore();
   ler_reg_cabecalho_arvore(btree_fp, h_btree); // CRIAR ESSA FUNCAO
+  printf("btree header has been readen as:\n");
+  printHeaderArvore(h_btree);
   if (checa_consistencia(h) != 0){
     free(h_btree);
     fclose(btree_fp);
@@ -588,8 +595,11 @@ void comando9(){
   for (int i = 0; i < n_insercoes; i++)
   {
     ler_registros_dados_teclado(&rd);
+    printf("has gotten from keyboard the following data record:\n");
+    printa_registro(&rd);
 
     rrn_reg_dados = insere_registro_dados(data_fp, h, &rd);
+    printf("rd has been inserted on rrn=%d\n",rrn_reg_dados);
 
     insercao_btree(btree_fp, h_btree, rd.idConecta, rrn_reg_dados);
   }

@@ -18,5 +18,7 @@ void comando3(char*);
 void comando4(char*);
 void comando5(char*);
 void comando6(char*);
+void comando8();
+void comando9();
 
 #endif

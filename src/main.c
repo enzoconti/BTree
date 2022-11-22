@@ -1,5 +1,5 @@
-#include "topologiaRede.h"
-#include "funcionalidades.h"
+#include "../include/topologiaRede.h"
+#include "../include/funcionalidades.h"
 
 /*
 Rafael Freitas Garcia - N°USP 11222374 - 100%
@@ -36,7 +36,7 @@ int main(){
             comando6(nome_do_arquivo_entrada);
             break;
         case 7:
-            comando7();
+            //comando7();
             break;
         case 8:
             comando8();
@@ -45,7 +45,7 @@ int main(){
             comando9();
             break;
         case 10:
-            comando10();
+            //comando10();
             break;
     }
     return 0;

@@ -3,6 +3,7 @@
 
 #include "topologiaRede.h"
 #include "funcoes_auxiliares.h"
+#include "funcoes_checagem.h"
 
 //escreve no arquivo
 void escreve_string_no_arquivo(char*, FILE*, int);
@@ -14,4 +15,5 @@ int insere_registro_dados(FILE* arquivo_entrada, reg_cabecalho *h,reg_dados* rd)
 
 //escreve na tela
 void printa_registro(reg_dados*);
+void printHeader(reg_cabecalho* h);
 #endif

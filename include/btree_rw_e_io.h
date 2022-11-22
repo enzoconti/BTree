@@ -15,5 +15,9 @@ void escrever_dados_indice_porRRN(FILE* arquivo, int RRN, reg_dados_indice* reg)
 //leitura do indice
 void ler_dados_indice(FILE* arquivo, reg_dados_indice* reg);
 void ler_dados_indice_porRRN(FILE* arquivo, int RRN, reg_dados_indice* reg);
+void ler_reg_cabecalho_arvore(FILE* arquivo, reg_cabecalho_arvore* reg);
+
+ void printHeaderArvore(reg_cabecalho_arvore* h_btree);
+ void printa_registro_arvore(reg_dados_indice *btree_reg);
 
 #endif

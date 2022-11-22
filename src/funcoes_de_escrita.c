@@ -161,7 +161,7 @@ int insere_registro_dados(FILE* arquivo_entrada, reg_cabecalho *h,reg_dados* rd)
         free(rd);
         free(h);
         fclose(arquivo_entrada);
-        return;
+        return -1;
       }
     }
 
@@ -172,4 +172,15 @@ int insere_registro_dados(FILE* arquivo_entrada, reg_cabecalho *h,reg_dados* rd)
     strcpy(h->status, "1");
 
     return (byteoffset_written - TAM_PAG_DISCO)/TAM_REG_DADOS;
+}
+
+void printHeader(reg_cabecalho* h){
+    printf("status: %s\n",h->status);
+    printf("topo: %d\n",h->topo);
+    printf("proxRRN: %d\n",h->proxRRN);
+    printf("nroRegRem: %d\n", h->proxRRN);
+    printf("nroPagDisco: %d\n",h->nroPagDisco);
+    printf("qttCompacta: %d\n",h->qttCompacta);
+    printf("\n");
+
 }

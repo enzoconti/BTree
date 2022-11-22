@@ -78,7 +78,7 @@ void busca_indexada(int valor, int num_registros_encontrados, reg_cabecalho_arvo
         if (num_registros_encontrados == 0) printf("Registro inexistente.\n\n");
     }
     }
-}
+}const
 
 void insercao_btree(FILE*fp, reg_cabecalho_arvore*h, int key, int data_rrn_4insertion){
     int flag_retorno;
@@ -87,13 +87,17 @@ void insercao_btree(FILE*fp, reg_cabecalho_arvore*h, int key, int data_rrn_4inse
     reg_dados_indice* reg_buscado = cria_registro_dados_indice();
     int* found_pos, flag_busca;
     flag_busca = busca_arvore(h->noRaiz, found_pos, reg_buscado, key, fp);
+    printf("has searched tree, returned flag_busca=%d, found_pos=%d and reg_buscado: \n",flag_busca,found_pos);
+    printa_registro_arvore(reg_buscado);
 
     if(flag_busca == ENCONTRADO) return; // chave ja presente na arvore, nao insere
 
-
+    printf("calling _insercao_btree first recursion\n");
     flag_retorno = _insercao_btree(fp,h,reg_buscado,key,data_rrn_4insertion,promoted_child,promoted_key,promoted_data_rrn);
+    printf("flag_retorno has returned _insercao_btree as %d\n",flag_retorno);
 
     if(flag_retorno == PROMOTION){ // houve split na raiz ou a arvore estava vazia
+        printf("inside promotional conditional\n");
         // cria nova raiz
         new_root = cria_registro_dados_indice();
 
@@ -113,7 +117,8 @@ void insercao_btree(FILE*fp, reg_cabecalho_arvore*h, int key, int data_rrn_4inse
         h->alturaArvore++;
         h->noRaiz = new_root->RRNdoNo;
         h->RRNproxNo++;
-
+        printf("writing data_btree record(new root):\n");
+        printa_registro_arvore(new_root);
         escrever_dados_indice_porRRN(fp, new_root->RRNdoNo,&new_root); // CRIAR ESSA FUNCAO
     }
 

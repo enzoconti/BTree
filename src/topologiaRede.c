@@ -1,4 +1,4 @@
-#include "topologiaRede.h"
+#include "../include/topologiaRede.h"
 
 /*
 
@@ -85,5 +85,7 @@ reg_dados_indice* cria_registro_dados_indice(){
         novo_reg->chaveBusca[i] = -1;
         novo_reg->RRNdoRegistro[i] = -1;
     }
+
+    return novo_reg;
 }
     

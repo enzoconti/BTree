@@ -105,3 +105,29 @@ void ler_dados_indice_porRRN(FILE* arquivo, int RRN, reg_dados_indice* reg){
     fseek(arquivo, byte_offset , SEEK_SET);
     ler_dados_indice(arquivo, reg);
 }
+
+ void printHeaderArvore(reg_cabecalho_arvore* h_btree){
+    printf("noRaiz: %d\n",h_btree->noRaiz);
+    printf("nroChavesTotal: %d\n",h_btree->nroChavesTotal);
+    printf("alturaArvore: %d\n",h_btree->alturaArvore);
+    printf("RRNproxNo: %d\n",h_btree->RRNproxNo);
+    printf("\n");
+ }
+
+ void printa_registro_arvore(reg_dados_indice *btree_reg){
+    printf("folha: %s\n",btree_reg->folha);
+    printf("nroChavesNo: %d\n", btree_reg->nroChavesNo);
+    printf("RRNdoNo: %d", btree_reg->RRNdoNo);
+    for(int i=0;i<ORDEM_ARVORE_B;i++){
+        printf("\tchaveBusca[%d]: %d",i,btree_reg->chaveBusca[i]);
+    }
+    printf("\n");
+    for(int i=0;i<ORDEM_ARVORE_B;i++){
+        printf("\tRRNdoRegistro[%d]: %d",i,btree_reg->RRNdoRegistro[i]);
+    }
+    printf("\n");
+    for(int i=0;i<ORDEM_ARVORE_B+1;i++){
+        printf("ponteiroSubarvore[%d]: %d",i,btree_reg->ponteiroSubarvore[i]);
+    }
+    printf("\n\n");
+ }
