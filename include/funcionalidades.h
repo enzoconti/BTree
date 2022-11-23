@@ -12,12 +12,12 @@
 #include "btree.h"
 #include "btree_rw_e_io.h"
 
-void comando1(char*, char* );
-void comando2(char*);
-void comando3(char*);
-void comando4(char*);
-void comando5(char*);
-void comando6(char*);
+void comando1();
+void comando2();
+void comando3();
+void comando4();
+void comando5();
+void comando6();
 void comando8();
 void comando9();
 

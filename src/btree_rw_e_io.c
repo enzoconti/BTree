@@ -27,8 +27,9 @@ void escrever_no_arquivo_cabecalho_arvore(FILE* arquivo, reg_cabecalho_arvore* r
  */
 void ler_reg_cabecalho_arvore(FILE* arquivo, reg_cabecalho_arvore* reg){
     
-    fread(&reg->status, sizeof(char), 1, arquivo);
+    fread(&reg->status[0], sizeof(char), 1, arquivo);
     reg->status[1] = '\0';
+
     fread(&reg->noRaiz, sizeof(int), 1, arquivo);
     fread(&reg->nroChavesTotal, sizeof(int), 1, arquivo);
     fread(&reg->alturaArvore, sizeof(int), 1, arquivo);
@@ -84,7 +85,7 @@ void ler_dados_indice(FILE* arquivo, reg_dados_indice* reg){
 
 
     fread(&reg->nroChavesNo, sizeof(int), 1, arquivo);
-    fread(&reg->alturaNo, sizeof(int),1,arquivo);
+    fread(&reg->alturaNo, sizeof(int), 1, arquivo);
     fread(&reg->RRNdoNo, sizeof(int), 1, arquivo);
 
     for(int i = 0; i < ORDEM_ARVORE_B-1; i++){
@@ -104,7 +105,7 @@ void ler_dados_indice(FILE* arquivo, reg_dados_indice* reg){
  */
 void ler_dados_indice_porRRN(FILE* arquivo, int RRN, reg_dados_indice* reg){
 
-    int byte_offset = TAM_PAG_ARVORE + RRN*TAM_REG_DADOS_ARVORE;    
+    int byte_offset = TAM_PAG_ARVORE + RRN*TAM_REG_DADOS_ARVORE;
     fseek(arquivo, byte_offset , SEEK_SET);
     ler_dados_indice(arquivo, reg);
 }

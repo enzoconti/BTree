@@ -8,8 +8,6 @@ Beatriz Aimee Teixeira Furtado Braga - N°USP 12547934 - 100%
 
 int main(){
 
-    char nome_do_arquivo_entrada[TAM_NOME_ARQUIVO];
-    char nome_do_arquivo_saida[TAM_NOME_ARQUIVO];
     int comando = 0;
 
     scanf("%d", &comando);
@@ -17,23 +15,22 @@ int main(){
 
     switch(comando){
         case 1:
-            scanf("%s", nome_do_arquivo_saida);
-            comando1(nome_do_arquivo_entrada, nome_do_arquivo_saida);
+            comando1();
             break;
         case 2:
-            comando2(nome_do_arquivo_entrada);
+            comando2();
             break;
         case 3:
-            comando3(nome_do_arquivo_entrada);
+            comando3();
             break;
         case 4:
-            comando4(nome_do_arquivo_entrada);
+            comando4();
             break;
         case 5:
-            comando5(nome_do_arquivo_entrada);
+            comando5();
             break;
         case 6:
-            comando6(nome_do_arquivo_entrada);
+            comando6();
             break;
         case 7:
             //comando7();
@@ -42,7 +39,7 @@ int main(){
             comando8();
             break;
         case 9:
-            comando9();
+            //comando9();
             break;
         case 10:
             //comando10();
