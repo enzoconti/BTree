@@ -166,6 +166,8 @@ int insere_registro_dados(FILE* arquivo, reg_dados* novo_reg_dados, reg_cabecalh
         return -1;
       }
     }
+
+    return -2;
 }
 
 /*int insere_registro_dados(FILE* arquivo_entrada, reg_cabecalho *h,reg_dados* rd){

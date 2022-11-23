@@ -358,8 +358,10 @@ void comando8(){
   scanf("%ms", &nome_arquivo_dados);
   scanf("%ms", &nome_arquivo_indice);
 
-  FILE* arquivo_dados = abrir_leitura_binario(nome_arquivo_dados) if(arquivo_dados == NULL) return;
-  FILE* arquivo_indice = abrir_leitura_binario(nome_arquivo_indice) if(arquivo_indice == NULL) return;
+  FILE* arquivo_dados = abrir_leitura_binario(nome_arquivo_dados);
+  if(arquivo_dados == NULL) return;
+  FILE* arquivo_indice = abrir_leitura_binario(nome_arquivo_indice);
+  if(arquivo_indice == NULL) return;
 
   int num_buscas = 0;
   int pos_campo = -1;
@@ -435,7 +437,7 @@ void comando8(){
   fclose(arquivo_indice);
 }
 
-/*
+
 void comando9(){
 
   char *nome_arquivo_dados, *nome_arquivo_indice;
@@ -458,7 +460,7 @@ void comando9(){
   if (checa_consistencia(h) != 0)
   {
     free(h);
-    fclose(data_fp);z
+    fclose(data_fp);
     return;
   }
   strcpy(h->status, "0");
@@ -485,7 +487,10 @@ void comando9(){
 
     printf("going to insert the data record on data file, header currently as:\n");
     printHeader(h);
-    rrn_reg_dados = insere_registro_dados(data_fp, h, &rd);
+    strcpy(rd.removido,"0");
+    rd.encadeamento = -1;
+    int x;
+    rrn_reg_dados = insere_registro_dados(data_fp, &rd,h,&x);
     printf("rd has been inserted on rrn=%d\n",rrn_reg_dados);
 
     insercao_btree(btree_fp, h_btree, rd.idConecta, rrn_reg_dados);
@@ -504,7 +509,7 @@ void comando9(){
   binarioNaTela(nome_arquivo_dados);
   binarioNaTela(nome_arquivo_indice);
 }
-*/
+
 
 /**
  * @brief 
