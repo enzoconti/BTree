@@ -107,47 +107,29 @@ void atualizar_reg_cabecalho(reg_cabecalho* reg, FILE* arquivo_saida, int*cont_r
     escrever_no_arquivo_cabecalho(arquivo_saida, reg);
 }
 
-/*
-
-Função responsável por imprimir os dados de um registro conforme requisitado nas especificações do trabalho. Recebe um
-ponteiro para registro de dados. Antes de cada impressão, é verificado em cada caso em que o campo pode ser nulo, se o valor
-contido na struct não é referente à um campo nulo. Pois caso seja, não ocorre a impressão deste campo.
-
-*/
-void printa_registro(reg_dados* reg){
-
-    printf("Identificador do ponto: %d\n", reg->idConecta);
-    if(reg->nomePoPs[0] != '\0') printf("Nome do ponto: %s\n", reg->nomePoPs);//confere se não é nulo
-    if(reg->nomePais[0] != '\0') printf("Pais de localizacao: %s\n", reg->nomePais);
-    if(reg->siglaPais[0] != '$') printf("Sigla do pais: %s\n", reg->siglaPais);
-    if(reg->idPoPsConectado != -1) printf("Identificador do ponto conectado: %d\n", reg->idPoPsConectado);
-    if(reg->velocidade != -1) printf("Velocidade de transmissao: %d %sbps\n", reg->velocidade, reg->unidadeMedida);
-    printf("\n");
-}
-
 int insere_registro_dados(FILE* arquivo, reg_dados* novo_reg_dados, reg_cabecalho* novo_reg_cabecalho, int* num_registros_total){
 
-    int byte_offset = 0;
-    int rrn_inserido;
+  int byte_offset = 0;
+  int rrn_inserido;
 
-    // verifica se topo é -1, se é -1, então não há registros removidos
-    if (novo_reg_cabecalho->topo == -1){
-      rrn_inserido = novo_reg_cabecalho->proxRRN;
-      byte_offset = TAM_PAG_DISCO + ((novo_reg_cabecalho->proxRRN) * TAM_REG_DADOS);
-      fseek(arquivo, byte_offset, SEEK_SET); // vai para nova posição
-      escrever_no_arquivo_dados(arquivo, novo_reg_dados);
-      novo_reg_cabecalho->proxRRN++;
-      *num_registros_total = (ftell(arquivo) - TAM_PAG_DISCO) / TAM_REG_DADOS;
-      return rrn_inserido;
-    }
-    else if (novo_reg_cabecalho->topo != -1){ // há registros removidos
+  // verifica se topo é -1, se é -1, então não há registros removidos
+  if (novo_reg_cabecalho->topo == -1){
+    rrn_inserido = novo_reg_cabecalho->proxRRN;
+    byte_offset = TAM_PAG_DISCO + ((novo_reg_cabecalho->proxRRN) * TAM_REG_DADOS);
+    fseek(arquivo, byte_offset, SEEK_SET); // vai para nova posição
+    escrever_no_arquivo_dados(arquivo, novo_reg_dados);
+    novo_reg_cabecalho->proxRRN++;
+    *num_registros_total = (ftell(arquivo) - TAM_PAG_DISCO) / TAM_REG_DADOS;
+    return rrn_inserido;
+  }
+  else if (novo_reg_cabecalho->topo != -1){ // há registros removidos
 
-      rrn_inserido = novo_reg_cabecalho->topo;
-      byte_offset = TAM_PAG_DISCO + ((novo_reg_cabecalho->topo) * TAM_REG_DADOS);
-      fseek(arquivo, byte_offset, SEEK_SET);
+    rrn_inserido = novo_reg_cabecalho->topo;
+    byte_offset = TAM_PAG_DISCO + ((novo_reg_cabecalho->topo) * TAM_REG_DADOS);
+    fseek(arquivo, byte_offset, SEEK_SET);
 
-      fread(novo_reg_dados->removido, sizeof(char), 1, arquivo);
-      novo_reg_dados->removido[1] = '\0';
+    fread(novo_reg_dados->removido, sizeof(char), 1, arquivo);
+    novo_reg_dados->removido[1] = '\0';
 
       if (checa_remocao(novo_reg_dados) == 0){                                                                        // se o registro estiver removido
         fread(&novo_reg_dados->encadeamento, sizeof(int), 1, arquivo); // pega o encadeamento, isto é, novo espaço livre

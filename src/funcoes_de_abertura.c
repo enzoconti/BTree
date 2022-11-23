@@ -12,7 +12,7 @@ FILE* abrir_leitura(char* nome_do_arquivo){
     arquivo = fopen(nome_do_arquivo, "r");
 
     if(arquivo == NULL){
-        printf("Falha no processamento do arquivo.\n");
+        print_falha_processamento_arquivo();
         return 0;
     }
     return arquivo;
@@ -30,7 +30,7 @@ FILE* abrir_leitura_binario(char* nome_do_arquivo){
     arquivo = fopen(nome_do_arquivo, "rb");
 
     if(arquivo == NULL){
-        printf("Falha no processamento do arquivo.\n");
+        print_falha_processamento_arquivo();
         return 0;
     }
     return arquivo;
@@ -48,7 +48,7 @@ FILE* abrir_escrita_binario(char* nome_do_arquivo){
     arquivo = fopen(nome_do_arquivo, "wb");
 
     if(arquivo == NULL){
-        printf("Falha no processamento do arquivo.\n");
+        print_falha_processamento_arquivo();
         return 0;
     }
     return arquivo;
@@ -66,7 +66,7 @@ FILE* abrir_leitura_e_escrita_binario(char* nome_do_arquivo){
     arquivo = fopen(nome_do_arquivo, "rb+");
 
     if(arquivo == NULL){
-        printf("Falha no processamento do arquivo.\n");
+        print_falha_processamento_arquivo();
         return 0;
     }
     return arquivo;

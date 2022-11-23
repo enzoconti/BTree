@@ -27,7 +27,7 @@ int compara_campo_inteiro(int pos_campo, int valor, reg_dados* reg){
             return NAO_ENCONTRADO;
             break;
         default:
-            printf("Falha no processamento do arquivo.\n");
+            print_falha_processamento_arquivo();
             return -1;
     }
 }
@@ -63,7 +63,7 @@ int compara_campo_string(int pos_campo, char* campo, reg_dados* reg){
             return NAO_ENCONTRADO;
             break;
         default:
-            printf("Falha no processamento do arquivo.\n");
+            print_falha_processamento_arquivo();
             return -1;
     }
 }

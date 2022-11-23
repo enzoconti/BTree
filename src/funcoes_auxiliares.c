@@ -183,9 +183,21 @@ int confere_remocao(reg_dados* reg, FILE* arquivo_entrada){
         }
         return status;
     }
-    else{
+    else return status;
+}
+
+int monta_arvore(reg_dados* reg, FILE* arquivo_entrada, FILE* arquivo_indice, reg_cabecalho_arvore* novo_reg_cabecalho_arvore){
+
+    int num_RRN = 0;
+    int status = le_arquivo(reg, arquivo_entrada, &num_RRN);
+    if(status==1){//nao é o fim do arquivo
+
+        if (reg->removido[0] == '0'){ //registro não removido
+            insercao_btree(arquivo_indice, novo_reg_cabecalho_arvore, reg->idConecta, num_RRN);
+        }
         return status;
     }
+    else return status;
 }
 
 /*
@@ -217,9 +229,7 @@ int compacta_arquivo( reg_dados* reg, FILE* arquivo_entrada, FILE* arquivo_saida
         }
         return status;
     }
-    else{
-        return status;
-    }
+    else return status;
 }
 
 /*
@@ -282,10 +292,6 @@ void remover_arquivo(char* nome_temp, char* nome_do_arquivo_entrada){
     remover = remove(nome_do_arquivo_entrada);
     renomear = rename(nome_temp, nome_do_arquivo_entrada);
 
-    if (renomear==0 && remover==0){
-        binarioNaTela(nome_do_arquivo_entrada);
-    }
-    else{
-        printf("Falha no processamento do arquivo.\n");
-    }
+    if (renomear==0 && remover==0) binarioNaTela(nome_do_arquivo_entrada);
+    else print_falha_processamento_arquivo();
 }
