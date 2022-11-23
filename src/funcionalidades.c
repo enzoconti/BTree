@@ -458,7 +458,7 @@ void comando9(){
   if (checa_consistencia(h) != 0)
   {
     free(h);
-    fclose(data_fp);
+    fclose(data_fp);z
     return;
   }
   strcpy(h->status, "0");
@@ -504,9 +504,13 @@ void comando9(){
 }
 */
 
+/**
+ * @brief 
+ * 
+ */
 void comando10(){
 
-  char *nome_arquivo_dados1, *nome_arquivo_dados2, *nome_arquivo_indice, campo_arquivo_dados1, campo_arquivo_dados2;
+  char *nome_arquivo_dados1, *nome_arquivo_dados2, *nome_arquivo_indice, *campo_arquivo_dados1, *campo_arquivo_dados2;
 
   scanf("%ms", &nome_arquivo_dados1);
   scanf("%ms", &nome_arquivo_dados2);
@@ -514,7 +518,12 @@ void comando10(){
   scanf("%ms", &campo_arquivo_dados2);
   scanf("%ms", &nome_arquivo_indice);
 
-  FILE* arquivo_dados = abrir_leitura_binario(nome_arquivo_dados1) if(arquivo_dados == NULL) return;
+  FILE* arquivo_dados1 = abrir_leitura_binario(nome_arquivo_dados1);
+  if(arquivo_dados1 == NULL) return;
+  FILE* arquivo_dados2 = abrir_leitura_binario(nome_arquivo_dados2);
+  if(arquivo_dados2 == NULL) return;
   FILE* arquivo_indice = abrir_leitura_binario(nome_arquivo_indice);
   if(arquivo_indice == NULL) return;
+
+
 }
