@@ -347,6 +347,58 @@ void comando6(){
 }
 
 /**
+ * @brief Função responsável por ler os registros de dados de um arquivo de dados e criar um índice de árvore B num arquivo
+ * de índice
+ * 
+ */
+void comando7(){
+  char *nome_arquivo_dados, *nome_arquivo_indice;
+
+  scanf("%ms", &nome_arquivo_dados);
+  scanf("%ms", &nome_arquivo_indice);
+
+  FILE* arquivo_dados = abrir_leitura_binario(nome_arquivo_dados); 
+  if(arquivo_dados == NULL) return;
+  FILE* arquivo_indice = abrir_escrita_binario(nome_arquivo_indice);
+  if(arquivo_indice == NULL) return;
+
+  reg_dados *novo_reg_dados = cria_registro_dados();
+  reg_cabecalho *novo_reg_cabecalho = cria_registro_cabecalho();
+  reg_cabecalho_arvore* novo_reg_cabecalho_arvore = cria_registro_cabecalho_arvore();
+
+  ler_reg_cabecalho(arquivo_dados, novo_reg_cabecalho);
+
+  if (checa_consistencia(novo_reg_cabecalho) != 0){
+    free(novo_reg_dados);
+    free(novo_reg_cabecalho);
+    fclose(arquivo_dados);
+    return;
+  }
+
+  if(novo_reg_cabecalho->nroPagDisco == 1){//não há registros
+    //???
+  }
+
+  while(monta_arvore(novo_reg_dados, arquivo_dados, arquivo_indice, novo_reg_cabecalho_arvore) != 0);//monta arvore
+
+  fseek(arquivo_indice, 0, SEEK_SET);//volta pro inicio no arquivo de indice
+  fseek(arquivo_dados, 0, SEEK_SET);//volta pro inicio no arquivo de dados
+  
+  strcpy(novo_reg_cabecalho->status, "1");
+  escrever_no_arquivo_cabecalho_arvore(arquivo_indice, novo_reg_cabecalho_arvore);//reescreve cabeçalho do arquivo de indice
+  escrever_no_arquivo_cabecalho(arquivo_dados, novo_reg_cabecalho);//reescreve cabeçalho do arquivo de dados
+
+  free(novo_reg_dados);
+  free(novo_reg_cabecalho);
+  free(novo_reg_cabecalho_arvore);
+
+  fclose(arquivo_dados);
+  fclose(arquivo_indice);
+
+  binarioNaTela(arquivo_indice);
+}
+
+/**
  * @brief Função responsável por realizar a funcionalidade 8, que lê um arquivo binário e um arquivo de índice e realiza a
  * busca de um registro, utilizando o arquivo de índice no caso de buscas que utilizem o campo idConecta, que é a chave de busca.
  * e utiliza a busca linear (da funcionalidade 3), caso seja utilizado qualquer outro campo.
@@ -358,8 +410,10 @@ void comando8(){
   scanf("%ms", &nome_arquivo_dados);
   scanf("%ms", &nome_arquivo_indice);
 
-  FILE* arquivo_dados = abrir_leitura_binario(nome_arquivo_dados) if(arquivo_dados == NULL) return;
-  FILE* arquivo_indice = abrir_leitura_binario(nome_arquivo_indice) if(arquivo_indice == NULL) return;
+  FILE* arquivo_dados = abrir_leitura_binario(nome_arquivo_dados);
+  if(arquivo_dados == NULL) return;
+  FILE* arquivo_indice = abrir_leitura_binario(nome_arquivo_indice); 
+  if(arquivo_indice == NULL) return;
 
   int num_buscas = 0;
   int pos_campo = -1;

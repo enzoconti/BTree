@@ -12,6 +12,7 @@ int compacta_arquivo( reg_dados*, FILE*, FILE*, int*);
 void apaga_registro(FILE*, reg_dados* , reg_cabecalho*, int*);
 void remover_arquivo(char*, char*);
 int confere_remocao(reg_dados*, FILE*);
+int monta_arvore(reg_dados*, FILE* arquivo_entrada, FILE* arquivo_indice, reg_cabecalho_arvore*);
 int calcula_pag_disco(int);
 
 
