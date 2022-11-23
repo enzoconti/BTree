@@ -358,10 +358,8 @@ void comando8(){
   scanf("%ms", &nome_arquivo_dados);
   scanf("%ms", &nome_arquivo_indice);
 
-  FILE* arquivo_dados = abrir_leitura_binario(nome_arquivo_dados);
-  if(arquivo_dados == NULL) return;
-  FILE* arquivo_indice = abrir_leitura_binario(nome_arquivo_indice);
-  if(arquivo_indice == NULL) return;
+  FILE* arquivo_dados = abrir_leitura_binario(nome_arquivo_dados) if(arquivo_dados == NULL) return;
+  FILE* arquivo_indice = abrir_leitura_binario(nome_arquivo_indice) if(arquivo_indice == NULL) return;
 
   int num_buscas = 0;
   int pos_campo = -1;
@@ -505,3 +503,18 @@ void comando9(){
   binarioNaTela(nome_arquivo_indice);
 }
 */
+
+void comando10(){
+
+  char *nome_arquivo_dados1, *nome_arquivo_dados2, *nome_arquivo_indice, campo_arquivo_dados1, campo_arquivo_dados2;
+
+  scanf("%ms", &nome_arquivo_dados1);
+  scanf("%ms", &nome_arquivo_dados2);
+  scanf("%ms", &campo_arquivo_dados1);
+  scanf("%ms", &campo_arquivo_dados2);
+  scanf("%ms", &nome_arquivo_indice);
+
+  FILE* arquivo_dados = abrir_leitura_binario(nome_arquivo_dados1) if(arquivo_dados == NULL) return;
+  FILE* arquivo_indice = abrir_leitura_binario(nome_arquivo_indice);
+  if(arquivo_indice == NULL) return;
+}
