@@ -33,7 +33,6 @@ int busca_arvore(reg_cabecalho_arvore* reg, int* pos, reg_dados_indice *reg_arvo
 int _busca_arvore(int RRN, int *pos, reg_dados_indice *reg_arvore_encontrado, int chave, FILE* arq, int* num_paginas_lidas){
 
     if(RRN == -1) return NAO_ENCONTRADO;//Caso base, nó pai folha
-
     (*num_paginas_lidas)++;
 
     reg_dados_indice* novo_reg_dados = cria_registro_dados_indice();
@@ -41,22 +40,8 @@ int _busca_arvore(int RRN, int *pos, reg_dados_indice *reg_arvore_encontrado, in
     
     int flag_retorno = busca_na_pagina(chave, pos, novo_reg_dados); //busca na pagina (nó) atual
     if(flag_retorno == ENCONTRADO){//se encontrado
-        strcpy(reg_arvore_encontrado->folha, novo_reg_dados->folha);
-        reg_arvore_encontrado->nroChavesNo = novo_reg_dados->nroChavesNo;
-        reg_arvore_encontrado->alturaNo = novo_reg_dados->alturaNo;
-        reg_arvore_encontrado->RRNdoNo = novo_reg_dados->RRNdoNo;
 
-        for(int i = 0; i < ORDEM_ARVORE_B; i++){
-            reg_arvore_encontrado->ponteiroSubarvore[i] = novo_reg_dados->ponteiroSubarvore[i];
-        }
-        for(int i = 0; i < ORDEM_ARVORE_B-1; i++){
-            reg_arvore_encontrado->chaveBusca[i] = novo_reg_dados->chaveBusca[i];
-        }
-        for(int i = 0; i < ORDEM_ARVORE_B-1; i++){
-            reg_arvore_encontrado->RRNdoRegistro[i] = novo_reg_dados->RRNdoRegistro[i];
-        }
-
-        //*reg_arvore_encontrado = *novo_reg_dados; // reg_arvore_encontrado se torna o novo_reg_dados 
+        *reg_arvore_encontrado = *novo_reg_dados; // reg_arvore_encontrado se torna o novo_reg_dados 
         return ENCONTRADO;
     }
     else{
@@ -77,12 +62,11 @@ int _busca_arvore(int RRN, int *pos, reg_dados_indice *reg_arvore_encontrado, in
  * @param arquivo_indice Ponteiro para o arquivo de índice
  * @param novo_reg_dados Ponteiro para registro de dados que armazenará as informações do registro encontrado no arquivo de dados
  */
-void busca_indexada(int valor, int num_registros_encontrados, reg_cabecalho_arvore *novo_reg_cabecalho_arvore, reg_dados_indice *novo_reg_encontrado, FILE* arquivo_dados, FILE* arquivo_indice, reg_dados *novo_reg_dados, int* num_paginas_lidas){
+void busca_indexada(int valor, int* num_registros_encontrados, reg_cabecalho_arvore *novo_reg_cabecalho_arvore, reg_dados_indice *novo_reg_encontrado, FILE* arquivo_dados, FILE* arquivo_indice, reg_dados *novo_reg_dados, int* num_paginas_lidas){
     int pos = 0;//posicao no arquivo de indice
 
     scanf("%d", &valor);
-    num_registros_encontrados = 0;
-    (*num_paginas_lidas)++;//contar a leitura do cabeçalho
+    *num_registros_encontrados = 0;
 
     int flag_retorno = busca_arvore(novo_reg_cabecalho_arvore, &pos, novo_reg_encontrado, valor, arquivo_indice, num_paginas_lidas);
 
@@ -92,13 +76,14 @@ void busca_indexada(int valor, int num_registros_encontrados, reg_cabecalho_arvo
         fread(novo_reg_dados->removido,sizeof(char), 1, arquivo_dados);
         novo_reg_dados->removido[1] = '\0';
         le_registro(novo_reg_dados, arquivo_dados);
+        (*num_paginas_lidas)++;//contar a leitura do registro de dados do arquivo de dados
 
         if (novo_reg_dados->removido[0] != '1'){
             printa_registro(novo_reg_dados);
-            num_registros_encontrados++;
+            (*num_registros_encontrados)++;
         }
         else{
-            if (num_registros_encontrados == 0) printf("Registro inexistente.\n\n");
+            if (*num_registros_encontrados == 0) printf("Registro inexistente.\n\n");
         }
     }
 }

@@ -125,7 +125,50 @@ void printa_registro(reg_dados* reg){
     printf("\n");
 }
 
-int insere_registro_dados(FILE* arquivo_entrada, reg_cabecalho *h,reg_dados* rd){
+int insere_registro_dados(FILE* arquivo, reg_dados* novo_reg_dados, reg_cabecalho* novo_reg_cabecalho, int* num_registros_total){
+
+    int byte_offset = 0;
+    int rrn_inserido;
+
+    // verifica se topo é -1, se é -1, então não há registros removidos
+    if (novo_reg_cabecalho->topo == -1){
+      rrn_inserido = novo_reg_cabecalho->proxRRN;
+      byte_offset = TAM_PAG_DISCO + ((novo_reg_cabecalho->proxRRN) * TAM_REG_DADOS);
+      fseek(arquivo, byte_offset, SEEK_SET); // vai para nova posição
+      escrever_no_arquivo_dados(arquivo, novo_reg_dados);
+      novo_reg_cabecalho->proxRRN++;
+      *num_registros_total = (ftell(arquivo) - TAM_PAG_DISCO) / TAM_REG_DADOS;
+      return rrn_inserido;
+    }
+    else if (novo_reg_cabecalho->topo != -1){ // há registros removidos
+
+      rrn_inserido = novo_reg_cabecalho->topo;
+      byte_offset = TAM_PAG_DISCO + ((novo_reg_cabecalho->topo) * TAM_REG_DADOS);
+      fseek(arquivo, byte_offset, SEEK_SET);
+
+      fread(novo_reg_dados->removido, sizeof(char), 1, arquivo);
+      novo_reg_dados->removido[1] = '\0';
+
+      if (checa_remocao(novo_reg_dados) == 0){                                                                        // se o registro estiver removido
+        fread(&novo_reg_dados->encadeamento, sizeof(int), 1, arquivo); // pega o encadeamento, isto é, novo espaço livre
+        novo_reg_cabecalho->topo = novo_reg_dados->encadeamento;               // desempilha no topo
+        fseek(arquivo, -5, SEEK_CUR);                                  // volta pro início do registro
+        novo_reg_dados->removido[0] = '0';                                     // retorna status de não removido
+        novo_reg_dados->encadeamento = -1;                                     // reseta o encadeamento
+        novo_reg_cabecalho->nroRegRem--;
+        escrever_no_arquivo_dados(arquivo, novo_reg_dados);
+        return rrn_inserido;
+      }
+      else{ // se registro não estiver removido, erro
+        free(novo_reg_dados);
+        free(novo_reg_cabecalho);
+        fclose(arquivo);
+        return -1;
+      }
+    }
+}
+
+/*int insere_registro_dados(FILE* arquivo_entrada, reg_cabecalho *h,reg_dados* rd){
     int byte_offset, num_registros_total;
     int byteoffset_written;
      // verifica se topo é -1, se é -1, então não há registros removidos
@@ -173,6 +216,7 @@ int insere_registro_dados(FILE* arquivo_entrada, reg_cabecalho *h,reg_dados* rd)
 
     return (byteoffset_written - TAM_PAG_DISCO)/TAM_REG_DADOS;
 }
+*/
 
 void printHeader(reg_cabecalho* h){
     printf("status: %s\n",h->status);

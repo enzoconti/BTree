@@ -5,18 +5,17 @@
  * @brief Função referente à funcionalidade 1, que lê um arquivo csv registros e grava os dados em um arquivo binário.
  * Exibindo o output da função binarioNaTela no final da execução.
  *
- * @param nome_do_arquivo_entrada uma string contendo o nome do arquivo csv de entrada.
- * @param nome_do_arquivo_saida  uma string contendo o nome do arquivo binário de saída.
  */
-void comando1(char *nome_do_arquivo_entrada, char *nome_do_arquivo_saida)
+void comando1()
 {
+  char *nome_do_arquivo_entrada, *nome_do_arquivo_saida;
+  scanf("%ms", &nome_do_arquivo_entrada);
+  scanf("%ms", &nome_do_arquivo_saida);
 
   FILE *arquivo_entrada = abrir_leitura(nome_do_arquivo_entrada);
-  if (arquivo_entrada == NULL)
-    return;
+  if (arquivo_entrada == NULL) return;
   FILE *arquivo_saida = abrir_escrita_binario(nome_do_arquivo_saida);
-  if (arquivo_saida == NULL)
-    return;
+  if (arquivo_saida == NULL) return;
 
   char buffer[TAM_REG_DADOS]; // buffer temporário para armazenar as linhas do arquivo csv
   reg_dados *novo_reg_dados = cria_registro_dados();
@@ -55,10 +54,12 @@ void comando1(char *nome_do_arquivo_entrada, char *nome_do_arquivo_saida)
 /**
  * @brief Função referente à funcionalidade 2, que lê um arquivo binário e exibe todos seus registros.
  *
- * @param nome_do_arquivo_entrada  uma string contendo o nome do arquivo binário de entrada.
  */
-void comando2(char *nome_do_arquivo_entrada)
+void comando2()
 {
+
+  char *nome_do_arquivo_entrada;
+  scanf("%ms", &nome_do_arquivo_entrada);
 
   FILE *arquivo_entrada = abrir_leitura_binario(nome_do_arquivo_entrada);
   if (arquivo_entrada == NULL) return;
@@ -102,10 +103,12 @@ void comando2(char *nome_do_arquivo_entrada)
 /**
  * @brief Função referente à funcionalidade 3, que lê um arquivo binário e exibe todos registros encontrados em uma busca.
  *
- * @param nome_do_arquivo_entrada uma string contendo o nome do arquivo binário de entrada.
  */
-void comando3(char *nome_do_arquivo_entrada)
+void comando3()
 {
+
+  char *nome_do_arquivo_entrada;
+  scanf("%ms", &nome_do_arquivo_entrada);
 
   FILE *arquivo_entrada = abrir_leitura_binario(nome_do_arquivo_entrada);
   if (arquivo_entrada == NULL) return;
@@ -143,7 +146,7 @@ void comando3(char *nome_do_arquivo_entrada)
       scanf("%d", &valor);
       while (le_arquivo(novo_reg_dados, arquivo_entrada, &num_RRN)!=0){
         if (busca_inteiro(novo_reg_dados, arquivo_entrada, pos_campo, &num_registros, valor) == ENCONTRADO) printa_registro(novo_reg_dados);
-      }
+      } 
     } 
     else
     {
@@ -153,7 +156,7 @@ void comando3(char *nome_do_arquivo_entrada)
       }
     }
     
-    if (num_registros == NAO_ENCONTRADO) printf("Registro inexistente.\n\n");
+    if (num_registros == 0) printf("Registro inexistente.\n\n");
 
     printf("Numero de paginas de disco: %d\n\n", novo_reg_cabecalho->nroPagDisco);
     fseek(arquivo_entrada, TAM_PAG_DISCO, SEEK_SET); // volta pro inicio do arquivo após o registro de cabeçalho para nova busca
@@ -168,10 +171,12 @@ void comando3(char *nome_do_arquivo_entrada)
  * @brief Função referente à funcionalidade 4, que lê um arquivo binário e apaga todos registros encontrados em uma busca,
  * cujo output é a função binarioNaTela
  *
- * @param nome_do_arquivo_entrada uma string contendo o nome do arquivo binário de entrada.
  */
-void comando4(char *nome_do_arquivo_entrada)
+void comando4()
 {
+
+  char *nome_do_arquivo_entrada;
+  scanf("%ms", &nome_do_arquivo_entrada);
 
   FILE *arquivo_entrada = abrir_leitura_e_escrita_binario(nome_do_arquivo_entrada);
   if (arquivo_entrada == NULL)
@@ -236,26 +241,24 @@ void comando4(char *nome_do_arquivo_entrada)
  * @brief Função referente à funcionalidade 5, que lê um arquivo binário e insere um registro no arquivo, cujo output é
  * a função binárioNaTela
  *
- * @param nome_do_arquivo_entrada  uma string contendo o nome do arquivo binário de entrada.
  */
-void comando5(char *nome_do_arquivo_entrada)
-{
+void comando5(){
+
+  char *nome_do_arquivo_entrada;
+  scanf("%ms", &nome_do_arquivo_entrada);
 
   FILE *arquivo_entrada = abrir_leitura_e_escrita_binario(nome_do_arquivo_entrada);
-  if (arquivo_entrada == NULL)
-    return;
+  if (arquivo_entrada == NULL) return;
 
-  //int num_registros_total = 0;
   int num_registros_adicionados = 0;
-  //int byte_offset = 0;
+  int num_registros_total = 0;
 
   reg_cabecalho *novo_reg_cabecalho = cria_registro_cabecalho();
   reg_dados *novo_reg_dados = cria_registro_dados();
 
   ler_reg_cabecalho(arquivo_entrada, novo_reg_cabecalho);
 
-  if (checa_consistencia(novo_reg_cabecalho) != 0)
-  {
+  if (checa_consistencia(novo_reg_cabecalho) != 0){
     free(novo_reg_dados);
     free(novo_reg_cabecalho);
     fclose(arquivo_entrada);
@@ -264,56 +267,13 @@ void comando5(char *nome_do_arquivo_entrada)
 
   scanf("%d", &num_registros_adicionados);
 
-  for (int i = 0; i < num_registros_adicionados; i++)
-  { // enquanto os registros a serem adicionados não acabarem
+  for (int i = 0; i < num_registros_adicionados; i++){ // enquanto os registros a serem adicionados não acabarem
     
     ler_registros_dados_teclado(novo_reg_dados);
-    int rrn_inserido=-1;
+    insere_registro_dados(arquivo_entrada, novo_reg_dados, novo_reg_cabecalho, &num_registros_total);
+    /*int rrn_inserido=-1;
     rrn_inserido = insere_registro_dados(arquivo_entrada,novo_reg_cabecalho,novo_reg_dados);
-    printf("rrn inserido = %d\n",rrn_inserido);
-    /*
-    // verifica se topo é -1, se é -1, então não há registros removidos
-    if (novo_reg_cabecalho->topo == -1)
-    {
-      byte_offset = TAM_PAG_DISCO + ((novo_reg_cabecalho->proxRRN) * TAM_REG_DADOS);
-      fseek(arquivo_entrada, byte_offset, SEEK_SET); // vai para nova posição
-      escrever_no_arquivo_dados(arquivo_entrada, novo_reg_dados);
-      novo_reg_cabecalho->proxRRN++;
-      num_registros_total = (ftell(arquivo_entrada) - TAM_PAG_DISCO) / TAM_REG_DADOS;
-    }
-    else if (novo_reg_cabecalho->topo != -1)
-    { // há registros removidos
-
-      byte_offset = TAM_PAG_DISCO + ((novo_reg_cabecalho->topo) * TAM_REG_DADOS);
-      fseek(arquivo_entrada, byte_offset, SEEK_SET);
-
-      fread(novo_reg_dados->removido, sizeof(char), 1, arquivo_entrada);
-      novo_reg_dados->removido[1] = '\0';
-
-      if (checa_remocao(novo_reg_dados) == 0)
-      {                                                                        // se o registro estiver removido
-        fread(&novo_reg_dados->encadeamento, sizeof(int), 1, arquivo_entrada); // pega o encadeamento, isto é, novo espaço livre
-        novo_reg_cabecalho->topo = novo_reg_dados->encadeamento;               // desempilha no topo
-        fseek(arquivo_entrada, -5, SEEK_CUR);                                  // volta pro início do registro
-        novo_reg_dados->removido[0] = '0';                                     // retorna status de não removido
-        novo_reg_dados->encadeamento = -1;                                     // reseta o encadeamento
-        novo_reg_cabecalho->nroRegRem--;
-        escrever_no_arquivo_dados(arquivo_entrada, novo_reg_dados);
-      }
-      else
-      { // se registro não estiver removido, erro
-        free(novo_reg_dados);F
-        free(novo_reg_cabecalho);
-        fclose(arquivo_entrada);
-        return;
-      }
-    }
-  }
-  if (num_registros_total != 0)
-  {
-    novo_reg_cabecalho->nroPagDisco = calcula_pag_disco(num_registros_total);
-  }
-  */
+    printf("rrn inserido = %d\n",rrn_inserido);*/
   }
   strcpy(novo_reg_cabecalho->status, "1");
   fseek(arquivo_entrada, 0, SEEK_SET);
@@ -331,9 +291,11 @@ void comando5(char *nome_do_arquivo_entrada)
  * @brief Função referente à funcionalidade 6, que lê um arquivo binário e desfragmenta o arquivo,cujo output é a função
  * binarioNaTela
  *
- * @param nome_do_arquivo_entrada  uma string contendo o nome do arquivo binário de entrada.
  */
-void comando6(char *nome_do_arquivo_entrada){
+void comando6(){
+
+  char *nome_do_arquivo_entrada;
+  scanf("%ms", &nome_do_arquivo_entrada);
 
   int contador_reg = 0;
 
@@ -406,7 +368,8 @@ void comando8(){
   char buffer[24]; // buffer de string para o campo recebido
   int valor = 0;   // buffer de inteiro para o campo recebido
   int num_registros_encontrados = 0;
-  int num_paginas_arvore_lidas = 0;
+  int num_RRN = -1;
+  int num_paginas_lidas = 0;
 
   scanf("%d", &num_buscas);
 
@@ -438,68 +401,31 @@ void comando8(){
   for (int i = 0; i < num_buscas; i++){ // enquanto as buscas não acabarem
     printf("Busca %d\n", (i + 1));
     pos_campo = ler_campo();
-    num_paginas_arvore_lidas = 0;
 
     if(pos_campo == 0){
-      busca_indexada(valor, num_registros_encontrados, novo_reg_cabecalho_arvore, novo_reg_encontrado, arquivo_dados, arquivo_indice, novo_reg_dados, &num_paginas_arvore_lidas);
-      printf("Numero de paginas de disco: %d\n\n", (novo_reg_cabecalho->nroPagDisco + num_paginas_arvore_lidas + 1));
+      num_paginas_lidas = 2;//reseta contador para nova busca, 2 para contar a leitura do cabeçalho do arquivo de índice e do cabeçalho do arquivo de dados
+      busca_indexada(valor, &num_registros_encontrados, novo_reg_cabecalho_arvore, novo_reg_encontrado, arquivo_dados, arquivo_indice, novo_reg_dados, &num_paginas_lidas);
+      printf("Numero de paginas de disco: %d\n\n", (num_paginas_lidas));
     }
 
     else if (pos_campo == 2 || pos_campo == 4){// se for um campo de inteiro
 
-      int num_RRN = -1; // necessário para argumento da função le_arquivo
       scanf("%d", &valor);
-      num_registros_encontrados = 0; // reseta contador para nova busca
-      while (true)
-      {
-        if (le_arquivo(novo_reg_dados, arquivo_dados, &num_RRN) != 0)
-        { // enquanto não termina o arquivo
-          if (novo_reg_dados->removido[0] != '1')
-          {
-            if (compara_campo_inteiro(pos_campo, valor, novo_reg_dados) == 1)
-            { // se o registro foi encontrado
-              printa_registro(novo_reg_dados);
-              num_registros_encontrados++;
-              printf("Numero de paginas de disco: %d\n\n", novo_reg_cabecalho->nroPagDisco);
-            }
-          }
-        }
-        else
-        { // se ler tudo e não achar sai do loop
-          if (num_registros_encontrados == 0)
-            printf("Registro inexistente.\n\n");
-          break;
-        }
+      while (le_arquivo(novo_reg_dados, arquivo_dados, &num_RRN)!=0){
+        if (busca_inteiro(novo_reg_dados, arquivo_dados, pos_campo, &num_registros_encontrados, valor) == ENCONTRADO) printa_registro(novo_reg_dados);
       }
+      printf("Numero de paginas de disco: %d\n\n", (novo_reg_cabecalho->nroPagDisco));
     }
-    else if (pos_campo == 1 || pos_campo == 3 || pos_campo == 5 || pos_campo == 6)
-    { // se for campo de string
-      int num_RRN = -1;
+    else if (pos_campo == 1 || pos_campo == 3 || pos_campo == 5 || pos_campo == 6){ // se for campo de string
+
       scan_quote_string(buffer);
-      num_registros_encontrados = 0;
-      while (true)
-      {
-        if (le_arquivo(novo_reg_dados, arquivo_dados, &num_RRN) != 0)
-        {
-          if (novo_reg_dados->removido[0] != '1')
-          {
-            if (compara_campo_string(pos_campo, buffer, novo_reg_dados) == 1)
-            {
-              printa_registro(novo_reg_dados);
-              num_registros_encontrados++;
-              printf("Numero de paginas de disco: %d\n\n", novo_reg_cabecalho->nroPagDisco);
-            }
-          }
-        }
-        else
-        {
-          if (num_registros_encontrados == 0)
-            printf("Registro inexistente.\n\n");
-          break;
-        }
+      while (le_arquivo(novo_reg_dados, arquivo_dados, &num_RRN)!=0){
+        if (busca_string(novo_reg_dados, arquivo_dados, pos_campo, &num_registros_encontrados, buffer) == ENCONTRADO) printa_registro(novo_reg_dados);
       }
+      printf("Numero de paginas de disco: %d\n\n", (novo_reg_cabecalho->nroPagDisco));
     }
-    //printf("Numero de paginas de disco: %d\n\n", (novo_reg_cabecalho->nroPagDisco + num_paginas_arvore_lidas));
+    if (num_registros_encontrados == 0) printf("Registro inexistente.\n\n");
+
     fseek(arquivo_dados, TAM_PAG_DISCO, SEEK_SET); // volta pro inicio do arquivo após o registro de cabeçalho para nova busca
     fseek(arquivo_indice, TAM_PAG_ARVORE, SEEK_SET); // volta pro inicio do arquivo após o registro de cabeçalho para nova busca
   }
