@@ -5,6 +5,7 @@
 #include "funcoes_fornecidas.h"
 #include "funcoes_de_escrita.h"
 #include "funcoes_de_leitura.h"
+#include "funcoes_de_print.h"
 
 //compara inteiros
 int compara_campo_inteiro(int, int, reg_dados*);

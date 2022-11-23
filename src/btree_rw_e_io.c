@@ -48,6 +48,7 @@ void escrever_dados_indice(FILE* arquivo, reg_dados_indice* reg){
 
     fwrite(&(reg->folha[0]), sizeof(char), 1, arquivo);
     fwrite(&reg->nroChavesNo, sizeof(int), 1, arquivo);
+    fwrite(&reg->alturaNo, sizeof(int), 1, arquivo);
     fwrite(&reg->RRNdoNo, sizeof(int), 1, arquivo);
 
     for(int i = 0; i < ORDEM_ARVORE_B-1; i++){

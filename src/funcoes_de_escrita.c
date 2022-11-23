@@ -107,24 +107,6 @@ void atualizar_reg_cabecalho(reg_cabecalho* reg, FILE* arquivo_saida, int*cont_r
     escrever_no_arquivo_cabecalho(arquivo_saida, reg);
 }
 
-/*
-
-Função responsável por imprimir os dados de um registro conforme requisitado nas especificações do trabalho. Recebe um
-ponteiro para registro de dados. Antes de cada impressão, é verificado em cada caso em que o campo pode ser nulo, se o valor
-contido na struct não é referente à um campo nulo. Pois caso seja, não ocorre a impressão deste campo.
-
-*/
-void printa_registro(reg_dados* reg){
-
-    printf("Identificador do ponto: %d\n", reg->idConecta);
-    if(reg->nomePoPs[0] != '\0') printf("Nome do ponto: %s\n", reg->nomePoPs);//confere se não é nulo
-    if(reg->nomePais[0] != '\0') printf("Pais de localizacao: %s\n", reg->nomePais);
-    if(reg->siglaPais[0] != '$') printf("Sigla do pais: %s\n", reg->siglaPais);
-    if(reg->idPoPsConectado != -1) printf("Identificador do ponto conectado: %d\n", reg->idPoPsConectado);
-    if(reg->velocidade != -1) printf("Velocidade de transmissao: %d %sbps\n", reg->velocidade, reg->unidadeMedida);
-    printf("\n");
-}
-
 int insere_registro_dados(FILE* arquivo, reg_dados* novo_reg_dados, reg_cabecalho* novo_reg_cabecalho, int* num_registros_total){
 
   int byte_offset = 0;

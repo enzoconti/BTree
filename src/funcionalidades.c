@@ -27,8 +27,7 @@ void comando1()
   fgets(buffer, 64, arquivo_entrada); // pula primeira linha
   fgets(buffer, 64, arquivo_entrada); // pula primeira linha
 
-  while (fgets(buffer, 64, arquivo_entrada))
-  { // enquanto não chegar no fim do arquivo csv (fgets retorna NULL)
+  while (fgets(buffer, 64, arquivo_entrada)){ // enquanto não chegar no fim do arquivo csv (fgets retorna NULL)
     cont_registros++;
     ler_dados(buffer, novo_reg_dados); // lê dados do arquivo csv e grava na struct
     escrever_no_arquivo_dados(arquivo_saida, novo_reg_dados);
@@ -76,10 +75,9 @@ void comando2()
     fclose(arquivo_entrada);
     return;
   }
-  if (novo_reg_cabecalho->nroPagDisco == 1)
-  { // se não existirem registros no arquivo
-    printf("Registro inexistente.\n\n");
-    printf("Numero de paginas de disco: %d\n\n", novo_reg_cabecalho->nroPagDisco);
+  if (novo_reg_cabecalho->nroPagDisco == 1){ // se não existirem registros no arquivo
+    print_registro_inexistente();
+    print_num_pag_discos(novo_reg_cabecalho->nroPagDisco);
 
     free(novo_reg_dados);
     free(novo_reg_cabecalho);
@@ -88,11 +86,9 @@ void comando2()
     return;
   }
 
-  while (confere_remocao(novo_reg_dados, arquivo_entrada) != 0)
-    ; // enquanto o confere remoçao não retornar 0, ainda há registros a serem lidos
+  while (confere_remocao(novo_reg_dados, arquivo_entrada) != 0); // enquanto o confere remoçao não retornar 0, ainda há registros a serem lidos
 
-  printf("Numero de paginas de disco: %d", novo_reg_cabecalho->nroPagDisco);
-  printf("\n\n");
+  print_num_pag_discos(novo_reg_cabecalho->nroPagDisco);
 
   free(novo_reg_dados);
   free(novo_reg_cabecalho);
@@ -125,8 +121,7 @@ void comando3()
 
   ler_reg_cabecalho(arquivo_entrada, novo_reg_cabecalho);
 
-  if (checa_consistencia(novo_reg_cabecalho) != 0)
-  {
+  if (checa_consistencia(novo_reg_cabecalho) != 0){
     free(novo_reg_dados);
     free(novo_reg_cabecalho);
     fclose(arquivo_entrada);
@@ -134,31 +129,28 @@ void comando3()
   }
 
   scanf("%d", &num_buscas);
-  for (int i = 0; i < num_buscas; i++)
-  { // enquanto as buscas não acabarem
-    printf("Busca %d\n", (i + 1));
+  for (int i = 0; i < num_buscas; i++){ // enquanto as buscas não acabarem
+    print_busca(i + 1);
     int num_registros = 0; // zera o contador de registros encontrados
 
     pos_campo = ler_campo();
 
-   if (pos_campo == 0 || pos_campo == 2 || pos_campo == 4) //  se for um campo de inteiro
-    { 
+   if (pos_campo == 0 || pos_campo == 2 || pos_campo == 4){ //  se for um campo de inteiro 
       scanf("%d", &valor);
       while (le_arquivo(novo_reg_dados, arquivo_entrada, &num_RRN)!=0){
         if (busca_inteiro(novo_reg_dados, arquivo_entrada, pos_campo, &num_registros, valor) == ENCONTRADO) printa_registro(novo_reg_dados);
       } 
     } 
-    else
-    {
+    else{
       scan_quote_string(buffer);
       while (le_arquivo(novo_reg_dados, arquivo_entrada, &num_RRN)!=0){
         if (busca_string(novo_reg_dados, arquivo_entrada, pos_campo, &num_registros, buffer) == ENCONTRADO) printa_registro(novo_reg_dados);
       }
     }
     
-    if (num_registros == 0) printf("Registro inexistente.\n\n");
+    if(num_registros == 0) print_registro_inexistente();
 
-    printf("Numero de paginas de disco: %d\n\n", novo_reg_cabecalho->nroPagDisco);
+    print_num_pag_discos(novo_reg_cabecalho->nroPagDisco);
     fseek(arquivo_entrada, TAM_PAG_DISCO, SEEK_SET); // volta pro inicio do arquivo após o registro de cabeçalho para nova busca
   
     free(novo_reg_dados);
@@ -208,15 +200,13 @@ void comando4()
     int num_RRN = -1; //reinicia o RRN para cada busca
     
 
-    if (pos_campo == 0 || pos_campo == 2 || pos_campo == 4) //  se for um campo de inteiro
-    { 
+    if (pos_campo == 0 || pos_campo == 2 || pos_campo == 4){ //  se for um campo de inteiro 
       scanf("%d", &valor);
       while (le_arquivo(novo_reg_dados, arquivo_entrada, &num_RRN)!=0){
         if (busca_inteiro(novo_reg_dados, arquivo_entrada, pos_campo, &num_registros, valor) == ENCONTRADO) apaga_registro(arquivo_entrada, novo_reg_dados, novo_reg_cabecalho, &num_RRN);
       }
     } 
-    else
-    {
+    else{
       scan_quote_string(buffer);
       while (le_arquivo(novo_reg_dados, arquivo_entrada, &num_RRN)!=0){
         if (busca_string(novo_reg_dados, arquivo_entrada, pos_campo, &num_registros, buffer) == ENCONTRADO) apaga_registro(arquivo_entrada, novo_reg_dados, novo_reg_cabecalho, &num_RRN);
@@ -300,24 +290,21 @@ void comando6(){
   int contador_reg = 0;
 
   FILE *arquivo_entrada = abrir_leitura_e_escrita_binario(nome_do_arquivo_entrada);
-  if (arquivo_entrada == NULL)
-    return;
+  if (arquivo_entrada == NULL) return;
 
   reg_dados *novo_reg_dados = cria_registro_dados();
   reg_cabecalho *novo_reg_cabecalho = cria_registro_cabecalho();
 
   ler_reg_cabecalho(arquivo_entrada, novo_reg_cabecalho);
 
-  if (checa_consistencia(novo_reg_cabecalho) != 0)
-  {
+  if (checa_consistencia(novo_reg_cabecalho) != 0){
     free(novo_reg_dados);
     free(novo_reg_cabecalho);
     fclose(arquivo_entrada);
     return;
   }
 
-  if (novo_reg_cabecalho->topo == -1)
-  { // se o registro de cabeçalho é -1, então não há registros removidos
+  if (novo_reg_cabecalho->topo == -1){ // se o registro de cabeçalho é -1, então não há registros removidos
     novo_reg_cabecalho->qttCompacta++;
     novo_reg_cabecalho->status[0] = '1';
     fseek(arquivo_entrada, 0, SEEK_SET); // volta pro inicio
@@ -326,15 +313,12 @@ void comando6(){
     binarioNaTela(nome_do_arquivo_entrada);
     return;
   }
-  else
-  {                                                          // se o registro de cabeçalho é diferente de -1, então há registros removidos
+  else{                                                          // se o registro de cabeçalho é diferente de -1, então há registros removidos
     FILE *arquivo_saida = abrir_escrita_binario("temp.bin"); // Cria um novo arquivo para escrita dos registros não-removidos
-    if (arquivo_saida == NULL)
-      return;
+    if (arquivo_saida == NULL) return;
 
     escrever_no_arquivo_cabecalho(arquivo_saida, novo_reg_cabecalho);
-    while (compacta_arquivo(novo_reg_dados, arquivo_entrada, arquivo_saida, &contador_reg) != 0)
-      ; // enquanto o compacta_arquivo não retornar 0, ainda há registros a serem lidos
+    while (compacta_arquivo(novo_reg_dados, arquivo_entrada, arquivo_saida, &contador_reg) != 0); // enquanto o compacta_arquivo não retornar 0, ainda há registros a serem lidos
     atualizar_reg_cabecalho(novo_reg_cabecalho, arquivo_saida, &contador_reg);
     fclose(arquivo_saida);
     remover_arquivo("temp.bin", nome_do_arquivo_entrada);
@@ -376,7 +360,16 @@ void comando7(){
   }
 
   if(novo_reg_cabecalho->nroPagDisco == 1){//não há registros
-    //???
+    print_falha_processamento_arquivo();
+
+    free(novo_reg_dados);
+    free(novo_reg_cabecalho);
+    free(novo_reg_cabecalho_arvore);
+
+    fclose(arquivo_dados);
+    fclose(arquivo_indice);
+
+    return;
   }
 
   while(monta_arvore(novo_reg_dados, arquivo_dados, arquivo_indice, novo_reg_cabecalho_arvore) != 0);//monta arvore
@@ -385,6 +378,7 @@ void comando7(){
   fseek(arquivo_dados, 0, SEEK_SET);//volta pro inicio no arquivo de dados
   
   strcpy(novo_reg_cabecalho->status, "1");
+  strcpy(novo_reg_cabecalho_arvore->status, "1");
   escrever_no_arquivo_cabecalho_arvore(arquivo_indice, novo_reg_cabecalho_arvore);//reescreve cabeçalho do arquivo de indice
   escrever_no_arquivo_cabecalho(arquivo_dados, novo_reg_cabecalho);//reescreve cabeçalho do arquivo de dados
 
@@ -451,37 +445,35 @@ void comando8(){
   }
 
   for (int i = 0; i < num_buscas; i++){ // enquanto as buscas não acabarem
-    printf("Busca %d\n", (i + 1));
+    print_busca(i + 1);
     pos_campo = ler_campo();
 
     if(pos_campo == 0){
       num_paginas_lidas = 2;//reseta contador para nova busca, 2 para contar a leitura do cabeçalho do arquivo de índice e do cabeçalho do arquivo de dados
       busca_indexada(valor, &num_registros_encontrados, novo_reg_cabecalho_arvore, novo_reg_encontrado, arquivo_dados, arquivo_indice, novo_reg_dados, &num_paginas_lidas);
-      printf("Numero de paginas de disco: %d\n\n", (num_paginas_lidas));
+      print_num_pag_discos(num_paginas_lidas);
     }
-
     else if (pos_campo == 2 || pos_campo == 4){// se for um campo de inteiro
 
       scanf("%d", &valor);
       while (le_arquivo(novo_reg_dados, arquivo_dados, &num_RRN)!=0){
         if (busca_inteiro(novo_reg_dados, arquivo_dados, pos_campo, &num_registros_encontrados, valor) == ENCONTRADO) printa_registro(novo_reg_dados);
       }
-      printf("Numero de paginas de disco: %d\n\n", (novo_reg_cabecalho->nroPagDisco));
+      print_num_pag_discos(novo_reg_cabecalho->nroPagDisco);
     }
     else if (pos_campo == 1 || pos_campo == 3 || pos_campo == 5 || pos_campo == 6){ // se for campo de string
 
       scan_quote_string(buffer);
       while (le_arquivo(novo_reg_dados, arquivo_dados, &num_RRN)!=0){
-        if (busca_string(novo_reg_dados, arquivo_dados, pos_campo, &num_registros_encontrados, buffer) == ENCONTRADO) printa_registro(novo_reg_dados);
+        if(busca_string(novo_reg_dados, arquivo_dados, pos_campo, &num_registros_encontrados, buffer) == ENCONTRADO) printa_registro(novo_reg_dados);
       }
-      printf("Numero de paginas de disco: %d\n\n", (novo_reg_cabecalho->nroPagDisco));
+      print_num_pag_discos(novo_reg_cabecalho->nroPagDisco);
     }
-    if (num_registros_encontrados == 0) printf("Registro inexistente.\n\n");
+    if(num_registros_encontrados == 0) print_registro_inexistente();
 
     fseek(arquivo_dados, TAM_PAG_DISCO, SEEK_SET); // volta pro inicio do arquivo após o registro de cabeçalho para nova busca
     fseek(arquivo_indice, TAM_PAG_ARVORE, SEEK_SET); // volta pro inicio do arquivo após o registro de cabeçalho para nova busca
   }
-
   free(novo_reg_dados);
   free(novo_reg_cabecalho);
   free(novo_reg_cabecalho_arvore);
@@ -578,6 +570,4 @@ void comando10(){
   if(arquivo_dados2 == NULL) return;
   FILE* arquivo_indice = abrir_leitura_binario(nome_arquivo_indice);
   if(arquivo_indice == NULL) return;
-
-
 }

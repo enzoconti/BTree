@@ -83,7 +83,7 @@ void busca_indexada(int valor, int* num_registros_encontrados, reg_cabecalho_arv
             (*num_registros_encontrados)++;
         }
         else{
-            if (*num_registros_encontrados == 0) printf("Registro inexistente.\n\n");
+            if (*num_registros_encontrados == 0) print_registro_inexistente();
         }
     }
 }

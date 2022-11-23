@@ -3,6 +3,7 @@
 #define BTREE_H
 #include "topologiaRede.h"
 #include "btree_rw_e_io.h"
+#include "funcoes_de_print.h"
 
 #define PROMOTION 1
 #define NO_PROMOTION 0

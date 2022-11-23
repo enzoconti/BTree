@@ -229,9 +229,7 @@ int compacta_arquivo( reg_dados* reg, FILE* arquivo_entrada, FILE* arquivo_saida
         }
         return status;
     }
-    else{
-        return status;
-    }
+    else return status;
 }
 
 /*
@@ -294,10 +292,6 @@ void remover_arquivo(char* nome_temp, char* nome_do_arquivo_entrada){
     remover = remove(nome_do_arquivo_entrada);
     renomear = rename(nome_temp, nome_do_arquivo_entrada);
 
-    if (renomear==0 && remover==0){
-        binarioNaTela(nome_do_arquivo_entrada);
-    }
-    else{
-        printf("Falha no processamento do arquivo.\n");
-    }
+    if (renomear==0 && remover==0) binarioNaTela(nome_do_arquivo_entrada);
+    else print_falha_processamento_arquivo();
 }

@@ -11,6 +11,7 @@
 #include "funcoes_fornecidas.h"
 #include "btree.h"
 #include "btree_rw_e_io.h"
+#include "funcoes_de_print.h"
 
 void comando1();
 void comando2();
