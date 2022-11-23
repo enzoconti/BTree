@@ -128,6 +128,7 @@ void printa_registro(reg_dados* reg){
 int insere_registro_dados(FILE* arquivo_entrada, reg_cabecalho *h,reg_dados* rd){
     int byte_offset, num_registros_total;
     int byteoffset_written;
+    int esta_removido,encadeamento;
      // verifica se topo é -1, se é -1, então não há registros removidos
     if(h->topo == -1){
       byte_offset = TAM_PAG_DISCO + ((h->proxRRN) * TAM_REG_DADOS);
@@ -168,8 +169,6 @@ int insere_registro_dados(FILE* arquivo_entrada, reg_cabecalho *h,reg_dados* rd)
     if(num_registros_total != 0){
    h->nroPagDisco = calcula_pag_disco(num_registros_total);
   }
-
-    strcpy(h->status, "1");
 
     return (byteoffset_written - TAM_PAG_DISCO)/TAM_REG_DADOS;
 }

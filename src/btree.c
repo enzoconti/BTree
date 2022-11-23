@@ -87,10 +87,10 @@ void insercao_btree(FILE*fp, reg_cabecalho_arvore*h, int key, int data_rrn_4inse
     int *promoted_child, *promoted_key, *promoted_data_rrn;
     reg_dados_indice* new_root;
     reg_dados_indice* reg_buscado = cria_registro_dados_indice();
-    int* found_pos, flag_busca;
+    int found_pos, flag_busca;
 
-    flag_busca = busca_arvore(h, found_pos, reg_buscado, key, fp);
-    printf("has searched tree, returned flag_busca=%d, found_pos=%d and reg_buscado: \n",flag_busca,*found_pos);
+    flag_busca = busca_arvore(h, &found_pos, reg_buscado, key, fp);
+    printf("has searched tree, returned flag_busca=%d, found_pos=%d and reg_buscado: \n",flag_busca,found_pos);
     printa_registro_arvore(reg_buscado);
 
     if(flag_busca == ENCONTRADO) return; // chave ja presente na arvore, nao insere

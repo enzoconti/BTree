@@ -266,7 +266,6 @@ void comando5(char *nome_do_arquivo_entrada)
 
   for (int i = 0; i < num_registros_adicionados; i++)
   { // enquanto os registros a serem adicionados não acabarem
-    
     ler_registros_dados_teclado(novo_reg_dados);
     int rrn_inserido=-1;
     rrn_inserido = insere_registro_dados(arquivo_entrada,novo_reg_cabecalho,novo_reg_dados);
@@ -443,7 +442,7 @@ void comando8(){
       int num_RRN = -1; // necessário para argumento da função le_arquivo
       scanf("%d", &valor);
       num_registros_encontrados = 0; // reseta contador para nova busca
-      while (true)
+      while (1)
       {
         if (le_arquivo(novo_reg_dados, arquivo_dados, &num_RRN) != 0)
         { // enquanto não termina o arquivo
@@ -469,7 +468,7 @@ void comando8(){
       int num_RRN = -1;
       scan_quote_string(buffer);
       num_registros_encontrados = 0;
-      while (true)
+      while (1)
       {
         if (le_arquivo(novo_reg_dados, arquivo_dados, &num_RRN) != 0)
         {
@@ -550,6 +549,8 @@ void comando9(){
     printf("has gotten from keyboard the following data record:\n");
     printa_registro(&rd);
 
+    printf("going to insert the data record on data file, header currently as:\n");
+    printHeader(h);
     rrn_reg_dados = insere_registro_dados(data_fp, h, &rd);
     printf("rd has been inserted on rrn=%d\n",rrn_reg_dados);
 
