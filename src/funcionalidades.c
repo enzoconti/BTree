@@ -389,7 +389,7 @@ void comando7(){
   fclose(arquivo_dados);
   fclose(arquivo_indice);
 
-  binarioNaTela(arquivo_indice);
+  binarioNaTela(nome_arquivo_indice);
 }
 
 /**
