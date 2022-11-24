@@ -6,6 +6,7 @@
 #include "funcoes_de_escrita.h"
 #include "topologiaRede.h"
 #include "funcoes_de_print.h"
+#include "btree.h"
 
 char* separador(char*);
 void gravar_dados(reg_dados*, int, char*);

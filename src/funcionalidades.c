@@ -341,9 +341,10 @@ void comando7(){
   scanf("%ms", &nome_arquivo_dados);
   scanf("%ms", &nome_arquivo_indice);
 
+
   FILE* arquivo_dados = abrir_leitura_binario(nome_arquivo_dados); 
   if(arquivo_dados == NULL) return;
-  FILE* arquivo_indice = abrir_escrita_binario(nome_arquivo_indice);
+  FILE* arquivo_indice = fopen(nome_arquivo_indice,"wb+");
   if(arquivo_indice == NULL) return;
 
   reg_dados *novo_reg_dados = cria_registro_dados();
@@ -351,7 +352,8 @@ void comando7(){
   reg_cabecalho_arvore* novo_reg_cabecalho_arvore = cria_registro_cabecalho_arvore();
 
   ler_reg_cabecalho(arquivo_dados, novo_reg_cabecalho);
-
+  //debug//printf("data header has been readen as:\n");
+  //debug//printHeader(novo_reg_cabecalho);
   if (checa_consistencia(novo_reg_cabecalho) != 0){
     free(novo_reg_dados);
     free(novo_reg_cabecalho);
@@ -371,8 +373,27 @@ void comando7(){
 
     return;
   }
+  //debug//ler_reg_cabecalho_arvore(arquivo_indice,novo_reg_cabecalho_arvore);
+  //debug//printf("reg_cabecalho_arvore readen as:\n");
+  //debug//printHeaderArvore(novo_reg_cabecalho_arvore);
+  //debug//printf("trying to monta_arvore 1st time \n");
+  //debug//monta_arvore(novo_reg_dados, arquivo_dados, arquivo_indice, novo_reg_cabecalho_arvore);
+  //debug//printf("trying to monta_arvore 2nd time \n");
+  //debug//monta_arvore(novo_reg_dados, arquivo_dados, arquivo_indice, novo_reg_cabecalho_arvore);
+  //debug//printf("trying to monta_arvore 3rd time \n");
+  //debug//monta_arvore(novo_reg_dados, arquivo_dados, arquivo_indice, novo_reg_cabecalho_arvore);
+  //debug//printf("trying to monta_arvore 4th time \n");
+  //debug//monta_arvore(novo_reg_dados, arquivo_dados, arquivo_indice, novo_reg_cabecalho_arvore);
 
-  while(monta_arvore(novo_reg_dados, arquivo_dados, arquivo_indice, novo_reg_cabecalho_arvore) != 0);//monta arvore
+  //debug//printf("calling comando7 loop with monta_arvore\n");
+  
+  
+  //for(int i=0;i<15;i++){
+  //  monta_arvore(novo_reg_dados, arquivo_dados, arquivo_indice, novo_reg_cabecalho_arvore);
+  //}
+  
+  
+  while(monta_arvore(novo_reg_dados, arquivo_dados, arquivo_indice, novo_reg_cabecalho_arvore) != 0){};//monta arvore
 
   fseek(arquivo_indice, 0, SEEK_SET);//volta pro inicio no arquivo de indice
   fseek(arquivo_dados, 0, SEEK_SET);//volta pro inicio no arquivo de dados
@@ -445,7 +466,7 @@ void comando8(){
   }
 
   for (int i = 0; i < num_buscas; i++){ // enquanto as buscas não acabarem
-    print_busca(i + 1);
+    print_busca(i);
     pos_campo = ler_campo();
 
     if(pos_campo == 0){
@@ -490,7 +511,7 @@ void comando9(){
   reg_dados rd;
   scanf("%ms", &nome_arquivo_dados);
   scanf("%ms", &nome_arquivo_indice);
-  printf("func9 has gotten arq_dados = %s and arq_indice=%s\n",nome_arquivo_dados,nome_arquivo_indice);
+  //debug//rintf("func9 has gotten arq_dados = %s and arq_indice=%s\n",nome_arquivo_dados,nome_arquivo_indice);
 
   data_fp = abrir_leitura_e_escrita_binario(nome_arquivo_dados);
   btree_fp = abrir_leitura_e_escrita_binario(nome_arquivo_indice);
@@ -498,8 +519,8 @@ void comando9(){
   reg_cabecalho *h;
   h = cria_registro_cabecalho();
   ler_reg_cabecalho(data_fp, h); // CRIAR ESSA FUNCAO
-  printf("data header has been readen as:\n");
-  printHeader(h);
+  //debug//printf("data header has been readen as:\n");
+  //debug//printHeader(h);
 
   if (checa_consistencia(h) != 0)
   {
@@ -512,8 +533,8 @@ void comando9(){
   reg_cabecalho_arvore *h_btree;
   h_btree = cria_registro_cabecalho_arvore();
   ler_reg_cabecalho_arvore(btree_fp, h_btree); // CRIAR ESSA FUNCAO
-  printf("btree header has been readen as:\n");
-  printHeaderArvore(h_btree);
+  //debug//printf("btree header has been readen as:\n");
+  //debug//printHeaderArvore(h_btree);
   if (checa_consistencia_indice(h_btree) != 0){
     free(h_btree);
     fclose(btree_fp);
@@ -526,16 +547,16 @@ void comando9(){
   for (int i = 0; i < n_insercoes; i++)
   {
     ler_registros_dados_teclado(&rd);
-    printf("has gotten from keyboard the following data record:\n");
-    printa_registro(&rd);
-
-    printf("going to insert the data record on data file, header currently as:\n");
-    printHeader(h);
+    //debug//printf("has gotten from keyboard the following data record:\n");
+    //debug//printa_registro(&rd);
+//debug//
+    //debug//printf("going to insert the data record on data file, header currently as:\n");
+    //debug//printHeader(h);
     strcpy(rd.removido,"0");
     rd.encadeamento = -1;
     int x;
     rrn_reg_dados = insere_registro_dados(data_fp, &rd,h,&x);
-    printf("rd has been inserted on rrn=%d\n",rrn_reg_dados);
+    //debug//printf("rd has been inserted on rrn=%d\n",rrn_reg_dados);
 
     insercao_btree(btree_fp, h_btree, rd.idConecta, rrn_reg_dados);
   }

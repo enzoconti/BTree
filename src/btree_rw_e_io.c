@@ -125,15 +125,15 @@ void ler_dados_indice_porRRN(FILE* arquivo, int RRN, reg_dados_indice* reg){
     printf("nroChavesNo: %d\n", btree_reg->nroChavesNo);
     printf("alturaDoNO: %d\n", btree_reg->alturaNo);
     printf("RRNdoNo: %d\n", btree_reg->RRNdoNo);
-    for(int i=0;i<ORDEM_ARVORE_B;i++){
+    for(int i=0;i<ORDEM_ARVORE_B-1;i++){
         printf("\tchaveBusca[%d]: %d",i,btree_reg->chaveBusca[i]);
     }
     printf("\n");
-    for(int i=0;i<ORDEM_ARVORE_B;i++){
+    for(int i=0;i<ORDEM_ARVORE_B-1;i++){
         printf("\tRRNdoRegistro[%d]: %d",i,btree_reg->RRNdoRegistro[i]);
     }
     printf("\n");
-    for(int i=0;i<ORDEM_ARVORE_B+1;i++){
+    for(int i=0;i<ORDEM_ARVORE_B;i++){
         printf("ponteiroSubarvore[%d]: %d ",i,btree_reg->ponteiroSubarvore[i]);
     }
     printf("\n\n");

@@ -19,6 +19,7 @@ void comando3();
 void comando4();
 void comando5();
 void comando6();
+void comando7();
 void comando8();
 void comando9();
 

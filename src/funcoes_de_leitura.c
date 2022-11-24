@@ -136,11 +136,14 @@ a flag é passada a frente por meio de um retorno 0.
 
 */
 int le_arquivo(reg_dados* reg, FILE* arquivo_entrada, int*num_rrn){
+    *num_rrn = (ftell(arquivo_entrada) - TAM_PAG_DISCO)/TAM_REG_DADOS;
+
     if(fread(reg->removido,sizeof(char), 1, arquivo_entrada) != 0){//se não chegou ao fim
         reg->removido[1] = '\0';
         le_registro(reg,arquivo_entrada);
-        (*num_rrn)++;
         return 1;
+    }else{ // chegou ao fim
+        *num_rrn == -1;
     }
     return 0;
 }

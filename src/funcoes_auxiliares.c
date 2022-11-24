@@ -193,6 +193,8 @@ int monta_arvore(reg_dados* reg, FILE* arquivo_entrada, FILE* arquivo_indice, re
     if(status==1){//nao é o fim do arquivo
 
         if (reg->removido[0] == '0'){ //registro não removido
+            //debug//printf("read reg_dados* reg as:\n");
+            //debug//printa_registro(reg);
             insercao_btree(arquivo_indice, novo_reg_cabecalho_arvore, reg->idConecta, num_RRN);
         }
         return status;

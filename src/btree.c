@@ -13,7 +13,14 @@
 
 int busca_arvore(reg_cabecalho_arvore* reg, int* pos, reg_dados_indice *reg_arvore_encontrado, int chave, FILE* arq, int* num_paginas_lidas){
 
-    if(reg->noRaiz == -1) return NAO_ENCONTRADO;//caso base, não existe arvore
+    if(reg->noRaiz == -1) {
+        //debug//printf("busca_arvore(non recursive) base case of root==-1\n");
+        //debug//printf("header_arvore currently as:\n");
+        //debug//printHeaderArvore(reg);
+        //debug//printf("reg_arvore encontrado currently as:\n");
+        //debug//printa_registro_arvore(reg_arvore_encontrado);
+        return NAO_ENCONTRADO;//caso base, não existe arvore
+    }
 
     //Inicializa-se a recursão a partir do RRN do nó da raiz da árvore
     return _busca_arvore(reg->noRaiz, pos, reg_arvore_encontrado, chave, arq, num_paginas_lidas);
@@ -33,31 +40,31 @@ int busca_arvore(reg_cabecalho_arvore* reg, int* pos, reg_dados_indice *reg_arvo
 int _busca_arvore(int RRN, int *pos, reg_dados_indice *reg_arvore_encontrado, int chave, FILE* arq, int* num_paginas_lidas){
 
     if(RRN == -1) { 
-    printf("_busca_arvore base case of RRN=-1 returning NAO_ENCONTRADO with reg_arvore encontrado as:\n");
-    printa_registro_arvore(reg_arvore_encontrado);
+    //debug//printf("_busca_arvore base case of RRN=-1 returning NAO_ENCONTRADO with reg_arvore encontrado as:\n");
+    //debug//printa_registro_arvore(reg_arvore_encontrado);
     return NAO_ENCONTRADO;//Caso base, nó pai eh folha
     }
     (*num_paginas_lidas)++;
-    printf("past base case of _busca_arvore and will read novo_reg_dados, reg_arvore_encontrado currently as:\n");
-    printa_registro_arvore(reg_arvore_encontrado);
+    //debug//printf("past base case of _busca_arvore and will read novo_reg_dados, reg_arvore_encontrado currently as:\n");
+    //debug//printa_registro_arvore(reg_arvore_encontrado);
 
     reg_dados_indice* novo_reg_dados = cria_registro_dados_indice();
     ler_dados_indice_porRRN(arq, RRN, novo_reg_dados);//lê o nó atual para RAM
-    printf("dentro de _busca_arvore e li o novo_Reg_dados no RRN=%d antes de busca_na_pagina como:\n",RRN);
-    printa_registro_arvore(novo_reg_dados);
+    //debug//printf("dentro de _busca_arvore e li o novo_Reg_dados no RRN=%d antes de busca_na_pagina como:\n",RRN);
+    //debug//printa_registro_arvore(novo_reg_dados);
 
     int flag_retorno = busca_na_pagina(chave, pos, novo_reg_dados); //busca na pagina (nó) atual
     if(flag_retorno == ENCONTRADO){//se encontrado
-        printf("inside flag_retorno == ENCONTRADO case of _busca_arvore after busca_na_pagina, novo_reg_dados will be assigned to reg_arvore encontrado and it is now:\n");
-        printa_registro_arvore(novo_reg_dados);
+        //debug//printf("inside flag_retorno == ENCONTRADO case of _busca_arvore after busca_na_pagina, novo_reg_dados will be assigned to reg_arvore encontrado and it is now:\n");
+        //debug//printa_registro_arvore(novo_reg_dados);
         *reg_arvore_encontrado = *novo_reg_dados; // reg_arvore_encontrado se torna o novo_reg_dados 
         return ENCONTRADO;
     }
     else{
         //Chama busca recursiva, com o novo RRN referente ao ponteiro para subArvore na posição "pos"
-        printf("inside flag_retorno != ENCONTRADO case of _busca_arvore after busca_na_pagina\n");
-        printf("recursion will be called with novo_reg_dados->ponteiroSubarvore[%d] = %d and reg_arvore_encontrado now as:\n", *pos,novo_reg_dados->ponteiroSubarvore[*pos]);
-        printa_registro_arvore(reg_arvore_encontrado);
+        //debug//printf("inside flag_retorno != ENCONTRADO case of _busca_arvore after busca_na_pagina\n");
+        //debug//printf("recursion will be called with novo_reg_dados->ponteiroSubarvore[%d] = %d and reg_arvore_encontrado now as:\n", *pos,novo_reg_dados->ponteiroSubarvore[*pos]);
+        //debug//printa_registro_arvore(reg_arvore_encontrado);
         *reg_arvore_encontrado = *novo_reg_dados; // atualiza o reg_arvore_encontrado para ser utilizado na insercao
         return(_busca_arvore(novo_reg_dados->ponteiroSubarvore[*pos], pos, reg_arvore_encontrado, chave, arq, num_paginas_lidas));
     }
@@ -108,20 +115,19 @@ void insercao_btree(FILE*fp, reg_cabecalho_arvore*h, int key, int data_rrn_4inse
     reg_dados_indice* reg_buscado = cria_registro_dados_indice();
     int found_pos, flag_busca, num_paginas_lidas;
 
-    flag_busca = busca_arvore(h, &found_pos, reg_buscado, key, fp,&num_paginas_lidas);
-    printf("has searched tree, returned flag_busca=%d, found_pos=%d and reg_buscado: \n",flag_busca,found_pos);
-    printa_registro_arvore(reg_buscado);
-
-    if(flag_busca == ENCONTRADO) return; // chave ja presente na arvore, nao insere
-
-    printf("calling _insercao_btree first recursion\n");
-    flag_retorno = _insercao_btree(fp,h,reg_buscado,key,data_rrn_4insertion,&promoted_child,&promoted_key,&promoted_data_rrn);
-    printf("flag_retorno has returned _insercao_btree as %d\n",flag_retorno);
+    //debug//printf("calling _insercao_btree first recursion\n");
+    flag_retorno = _insercao_btree(fp,h,h->noRaiz,key,data_rrn_4insertion,&promoted_child,&promoted_key,&promoted_data_rrn);
+    //debug//printf("flag_retorno has returned _insercao_btree as %d\n",flag_retorno);
 
     if(flag_retorno == PROMOTION){ // houve split na raiz ou a arvore estava vazia
-        printf("inside promotional conditional\n");
+        //debug//printf("inside promotional conditional (new root)\n");
         // nova raiz
         new_root = cria_registro_dados_indice();
+
+        // se houve split na raiz(e nao estava vazia), entao o no raiz != -1 e portanto o no criado nao eh folha
+        if(h->noRaiz != -1){
+        new_root->folha[0] = '0';
+        }
 
         new_root->alturaNo = h->alturaArvore + 1;
 
@@ -139,8 +145,10 @@ void insercao_btree(FILE*fp, reg_cabecalho_arvore*h, int key, int data_rrn_4inse
         h->alturaArvore++;
         h->noRaiz = new_root->RRNdoNo;
         h->RRNproxNo++;
-        printf("writing data_btree record(new root):\n");
-        printa_registro_arvore(new_root);
+        //debug//printf("writing data_btree record(new root):\n");
+        //debug//printa_registro_arvore(new_root);
+        //debug//printf("header updated to:\n");
+        //debug//printHeaderArvore(h);
         escrever_dados_indice_porRRN(fp, new_root->RRNdoNo,new_root); // CRIAR ESSA FUNCAO
     }
     h->nroChavesTotal++;
@@ -161,17 +169,22 @@ void insercao_btree(FILE*fp, reg_cabecalho_arvore*h, int key, int data_rrn_4inse
  * @param promoted_data_rrn rrn no arquivo de dados promovido daqui pro nivel superior
  * @return ** int retorna se houve promocao ou nao, com uma flag extra para erro em caso de chaves repetidas
  */
-int _insercao_btree(FILE* fp,reg_cabecalho_arvore* h, reg_dados_indice* reg_arvore_atual, int key, int data_rrn_4insertion, int* promoted_child, int* promoted_key, int* promoted_data_rrn){
+int _insercao_btree(FILE* fp,reg_cabecalho_arvore* h, int rrn_indice_atual, int key, int data_rrn_4insertion, int* promoted_child, int* promoted_key, int* promoted_data_rrn){
     int posicao_key, flag_retorno, flag_insercao=0;
 
-    if(reg_arvore_atual == NULL || reg_arvore_atual->RRNdoNo == -1){ // atingimos uma pagina inexistente - rrn vazio
+    if(rrn_indice_atual == -1){ // atingimos uma pagina inexistente - rrn vazio
         *promoted_key = key;
         *promoted_data_rrn = data_rrn_4insertion;
         *promoted_child = -1; // chave promovida vai sem nenhum filho
+        //debug//printf("returning promotion on rrn-1 case with key = %d, data_rrn = %d and child=%d\n", *promoted_key, *promoted_data_rrn, *promoted_child);
         return PROMOTION; // promovemos a key para a pagina pai na qual sera inserida
-    }else{
-        flag_insercao = busca_na_pagina(key, &posicao_key, reg_arvore_atual);
     }
+
+
+    reg_dados_indice *reg_arvore_atual = cria_registro_dados_indice();
+    ler_dados_indice_porRRN(fp, rrn_indice_atual, reg_arvore_atual);
+    flag_insercao = busca_na_pagina(key, &posicao_key, reg_arvore_atual);
+        
     if(flag_insercao == ENCONTRADO) return INSERTION_ERROR; // retorna erro se ja possui a chave
 
     // as informacoes possivelmente promovidas de baixo sao atribuidas nessas variaveis
@@ -179,26 +192,20 @@ int _insercao_btree(FILE* fp,reg_cabecalho_arvore* h, reg_dados_indice* reg_arvo
     int* promoted_below_key = malloc(sizeof(int));
     int* promoted_below_data_rrn = malloc(sizeof(int));
 
-    if(reg_arvore_atual->ponteiroSubarvore[posicao_key] == -1){ // caso o RRN seja -1 passamos NULL para servir como caso base da recursao
-        flag_retorno = _insercao_btree(fp,h,NULL,key,data_rrn_4insertion,promoted_below_child,promoted_below_key,promoted_below_data_rrn);
-    }else{
-        reg_dados_indice *reg_arvore_proximo;
-        reg_arvore_proximo = cria_registro_dados_indice();
-        ler_dados_indice_porRRN(fp, reg_arvore_atual->ponteiroSubarvore[posicao_key], reg_arvore_proximo);
-        flag_retorno =  _insercao_btree(fp,h,reg_arvore_proximo,key,data_rrn_4insertion,promoted_below_child,promoted_below_key,promoted_below_data_rrn);
-    }
+    flag_retorno =  _insercao_btree(fp,h, reg_arvore_atual->ponteiroSubarvore[posicao_key] ,key,data_rrn_4insertion, promoted_below_child, promoted_below_key, promoted_below_data_rrn);
+
 
     if(flag_retorno == NO_PROMOTION || flag_retorno == INSERTION_ERROR){
         return flag_retorno;
     }
     // flag_retorno == PROMOTION a partir daqui, pois NO_PROMOTION e INSERTION_ERROR foram descartados
     if(reg_arvore_atual->nroChavesNo < ORDEM_ARVORE_B - 1){ // significa que esse no tem espaco
-        printf("inside has_space case and inserting on reg_arvore atual as:\n");
-        printa_registro_arvore(reg_arvore_atual);
-        printf("and the values for insertion are: key=%d,rrn=%d,child=%d", *promoted_below_key, *promoted_below_data_rrn, *promoted_below_child);
+        //debug//printf("inside has_space case and inserting on reg_arvore atual as:\n");
+        //debug//printa_registro_arvore(reg_arvore_atual);
+        //debug//printf("and the values for insertion are: key=%d,rrn=%d,child=%d", *promoted_below_key, *promoted_below_data_rrn, *promoted_below_child);
         flag_insercao = insere_na_pagina(reg_arvore_atual,*promoted_below_key,*promoted_below_data_rrn,*promoted_below_child);
-        printf("going to write on file on rrn %d with reg_arvore_atual as:\n", reg_arvore_atual->RRNdoNo);
-        printa_registro_arvore(reg_arvore_atual);
+        //debug//printf("going to write on file on rrn %d with reg_arvore_atual as:\n", reg_arvore_atual->RRNdoNo);
+        //debug//printa_registro_arvore(reg_arvore_atual);
         escrever_dados_indice_porRRN(fp,reg_arvore_atual->RRNdoNo,reg_arvore_atual); // escreve os dados atualizados da pagina // CRIAR ESSA FUNCAO
         
 
@@ -213,6 +220,7 @@ int _insercao_btree(FILE* fp,reg_cabecalho_arvore* h, reg_dados_indice* reg_arvo
         strcpy(newreg_arvore->folha,reg_arvore_atual->folha);
         newreg_arvore->alturaNo = reg_arvore_atual->alturaNo;
 
+        //debug//printf("############################################################\n\t\t\tsplit\t\t\n############################################################\n");
         split(*promoted_below_key,*promoted_below_data_rrn,*promoted_below_child,promoted_key,promoted_data_rrn,promoted_child,reg_arvore_atual,newreg_arvore);
 
         // reescreve os dados de ambas as paginas da btree
@@ -260,12 +268,13 @@ void split(int key, int data_rrn,int right_child, int* upkey, int* updata_rrn, i
     int aux_data_rrns[ORDEM_ARVORE_B];
     int aux_right_children[ORDEM_ARVORE_B];
     int promotion_position = ORDEM_ARVORE_B/2;
+    //debug//printf("split has started with values to insert of: key=%d data_rrn=%d right_child=%d\n",key,data_rrn,right_child);
 
     // primeiro inserimos ordenadamente(ordenacao baseada nas keys) nos vetores auxiliares
     int has_added_value=0; // indica se o valor ja foi adicionado
     int j=0;              // contador adicional que percorre chaveBusca[] e ponteiroSubarvore[]
     for(int i=0;i<ORDEM_ARVORE_B;i++){
-        if(has_added_value == 0 && key < r->chaveBusca[j]){ // se o valor ainda nao foi adicionado e encontramos a primeira chave em chaveBusca[] maior que a key, inserimos a key ao inves dessa chaveBusca[]
+        if( (j == ORDEM_ARVORE_B-1) || (has_added_value == 0 && key < r->chaveBusca[j]) ){ // se o valor ainda nao foi adicionado e encontramos a primeira chave em chaveBusca[] maior que a key, inserimos a key ao inves dessa chaveBusca[]
             has_added_value = 1;
             aux_keys[i] = key;
             aux_data_rrns[i] = data_rrn;
@@ -277,6 +286,25 @@ void split(int key, int data_rrn,int right_child, int* upkey, int* updata_rrn, i
             j++;
         }
     }
+    //debug//printf("split routine has defined the auxiliar arrays as:\n");
+    //debug//printf("auxkeys = [");
+    //debug//for(int i=0;i<ORDEM_ARVORE_B;i++){
+    //debug//    printf("%d ", aux_keys[i]);
+    //debug//};
+    //debug//printf("]\n");
+//debug//
+    //debug//printf("aux_data_rrns = [");
+    //debug//for(int i=0;i<ORDEM_ARVORE_B;i++){
+    //debug//    printf("%d ", aux_data_rrns[i]);
+    //debug//};
+    //debug//printf("]\n");
+//debug//
+    //debug//printf("auxrightchildren = [");
+    //debug//for(int i=0;i<ORDEM_ARVORE_B;i++){
+    //debug//    printf("%d ", aux_right_children[i]);
+    //debug//};
+    //debug//printf("]\n");
+    //debug//printf("and promotion position=%d\n",promotion_position);
 
     // atualizando os valores a serem promovidos
     *upkey = aux_keys[promotion_position];
@@ -298,14 +326,26 @@ void split(int key, int data_rrn,int right_child, int* upkey, int* updata_rrn, i
     newr->nroChavesNo = promotion_position;
     r->nroChavesNo = promotion_position;
     if(ORDEM_ARVORE_B % 2 == 0) r->nroChavesNo++; // o da esquerda fica com um a mais se a ordem for par
+
+    // colocando NIL nos arrays com valores invalidos
+    for(int i=promotion_position;i<ORDEM_ARVORE_B-1;i++){
+        r->RRNdoRegistro[i] = -1;
+        r->chaveBusca[i] = -1;
+        r->ponteiroSubarvore[i+1] = -1;
+
+        newr->RRNdoRegistro[i] = -1;
+        newr->chaveBusca[i] = -1;
+        newr->ponteiroSubarvore[i+1] = -1;
+    }
+
 }
 
 int busca_na_pagina(int key, int* pos, reg_dados_indice* r){
     int i=0;
-    printf("dentro de busca pagina procurando a key %d\n",key);
+    //debug//printf("dentro de busca pagina procurando a key %d\n",key);
     // a posicao onde deveria estar ou esta eh antes da primeira chave maior do que a chave buscada
     for(i=0;i<r->nroChavesNo;i++){
-        printf("dentro do loop de busca_na_pagina com i=%d e chave_busca[i]=%d, procurando chave %d\n",i,r->chaveBusca[i],key);
+        //debug//printf("dentro do loop de busca_na_pagina com i=%d e chave_busca[i]=%d, procurando chave %d\n",i,r->chaveBusca[i],key);
         if(key <= r->chaveBusca[i]){
             *pos = i;
 

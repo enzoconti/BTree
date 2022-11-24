@@ -33,7 +33,7 @@ int main(){
             comando6();
             break;
         case 7:
-            //comando7();
+            comando7();
             break;
         case 8:
             comando8();
