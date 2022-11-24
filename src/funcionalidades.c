@@ -511,7 +511,7 @@ void comando9(){
   reg_dados rd;
   scanf("%ms", &nome_arquivo_dados);
   scanf("%ms", &nome_arquivo_indice);
-  //debug//rintf("func9 has gotten arq_dados = %s and arq_indice=%s\n",nome_arquivo_dados,nome_arquivo_indice);
+  //debug//printf("func9 has gotten arq_dados = %s and arq_indice=%s\n",nome_arquivo_dados,nome_arquivo_indice);
 
   data_fp = abrir_leitura_e_escrita_binario(nome_arquivo_dados);
   btree_fp = abrir_leitura_e_escrita_binario(nome_arquivo_indice);

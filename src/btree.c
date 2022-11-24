@@ -311,8 +311,8 @@ void split(int key, int data_rrn,int right_child, int* upkey, int* updata_rrn, i
         // se o valor ainda nao foi adicionado e encontramos a primeira chave em chaveBusca[] maior que a key 
         // OU se ja percorremos todas chaves originais(caso em que a chave a ser inserida eh a maior)
         // inserimos a key ao inves dessa chaveBusca[]
-        has_added_value = 1;
         if( (j == ORDEM_ARVORE_B-1) || (has_added_value == 0 && key < r->chaveBusca[j]) ){ 
+            has_added_value = 1;
             aux_keys[i] = key;
             aux_data_rrns[i] = data_rrn;
             aux_right_children[i] = right_child;
