@@ -22,5 +22,8 @@ void comando6();
 void comando7();
 void comando8();
 void comando9();
+int juncao(reg_dados* reg1, FILE* arquivo_entrada, reg_cabecalho_arvore* cabecalho_arvore, reg_dados_indice* reg_indice, FILE* arquivo_procura, FILE* arquivo_indice, reg_dados*reg_procura);
+void comando10();
+void printa_juncao(reg_dados* reg1, reg_dados* reg2);
 
 #endif

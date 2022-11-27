@@ -452,6 +452,7 @@ void comando8(){
     free(novo_reg_dados);
     free(novo_reg_cabecalho);
     free(novo_reg_cabecalho_arvore);
+    free(novo_reg_encontrado);
     fclose(arquivo_dados);
     fclose(arquivo_indice);
     return;
@@ -460,6 +461,7 @@ void comando8(){
     free(novo_reg_dados);
     free(novo_reg_cabecalho);
     free(novo_reg_cabecalho_arvore);
+    free(novo_reg_encontrado);
     fclose(arquivo_dados);
     fclose(arquivo_indice);
     return;
@@ -471,7 +473,22 @@ void comando8(){
 
     if(pos_campo == 0){
       num_paginas_lidas = 2;//reseta contador para nova busca, 2 para contar a leitura do cabeçalho do arquivo de índice e do cabeçalho do arquivo de dados
-      busca_indexada(valor, &num_registros_encontrados, novo_reg_cabecalho_arvore, novo_reg_encontrado, arquivo_dados, arquivo_indice, novo_reg_dados, &num_paginas_lidas);
+      int flag_busca = 0;
+
+      scanf("%d", &valor);
+
+      flag_busca = busca_indexada(valor, novo_reg_cabecalho_arvore, novo_reg_encontrado, arquivo_dados, arquivo_indice, novo_reg_dados, &num_paginas_lidas);
+
+      if (flag_busca == ENCONTRADO){
+
+        if (novo_reg_dados->removido[0] != '1'){
+            printa_registro(novo_reg_dados);
+            num_registros_encontrados++;
+        }
+        else if (num_registros_encontrados == 0) print_registro_inexistente();
+        
+      }
+
       print_num_pag_discos(num_paginas_lidas);
     }
     else if (pos_campo == 2 || pos_campo == 4){// se for um campo de inteiro
@@ -591,9 +608,97 @@ void comando10(){
   scanf("%ms", &nome_arquivo_indice);
 
   FILE* arquivo_dados1 = abrir_leitura_binario(nome_arquivo_dados1);
-  if(arquivo_dados1 == NULL) return;
+  if(arquivo_dados1 == NULL)
+  {printf("erro arq dados 1"); return;}
   FILE* arquivo_dados2 = abrir_leitura_binario(nome_arquivo_dados2);
-  if(arquivo_dados2 == NULL) return;
+  if(arquivo_dados2 == NULL){printf("erro arq dados 2"); return;}
   FILE* arquivo_indice = abrir_leitura_binario(nome_arquivo_indice);
-  if(arquivo_indice == NULL) return;
+  if(arquivo_indice == NULL) {printf("erro arq indice"); return;}
+
+
+  reg_dados *novo_reg_dados1 = cria_registro_dados();
+  reg_dados *novo_reg_dados2 = cria_registro_dados();
+  reg_dados_indice *novo_reg_indice= cria_registro_dados_indice();
+  reg_cabecalho *novo_reg_cabecalho1 = cria_registro_cabecalho();
+  reg_cabecalho *novo_reg_cabecalho2 = cria_registro_cabecalho();
+  reg_cabecalho_arvore *novo_reg_cabecalho_arvore = cria_registro_cabecalho_arvore();
+
+  ler_reg_cabecalho(arquivo_dados1, novo_reg_cabecalho1);
+  ler_reg_cabecalho(arquivo_dados2, novo_reg_cabecalho2);
+  ler_reg_cabecalho_arvore(arquivo_indice, novo_reg_cabecalho_arvore);
+
+  if (checa_consistencia(novo_reg_cabecalho1) != 0){
+    free(novo_reg_dados1);
+    free(novo_reg_cabecalho1);
+    free(novo_reg_dados2);
+    free(novo_reg_cabecalho2);
+    free(novo_reg_cabecalho_arvore);
+    free(novo_reg_indice);
+    fclose(arquivo_dados1);
+    fclose(arquivo_dados2);
+    fclose(arquivo_indice);
+    return;
+  }
+  if (checa_consistencia_indice(novo_reg_cabecalho_arvore) != 0){
+    free(novo_reg_dados1);
+    free(novo_reg_cabecalho1);
+    free(novo_reg_dados2);
+    free(novo_reg_cabecalho2);
+    free(novo_reg_cabecalho_arvore);
+    free(novo_reg_indice);
+    fclose(arquivo_dados1);
+    fclose(arquivo_dados2);
+    fclose(arquivo_indice);
+    return;
+  }
+
+  
+  while (juncao(novo_reg_dados1, arquivo_dados1, novo_reg_cabecalho_arvore, novo_reg_indice, arquivo_dados2, arquivo_indice, novo_reg_dados2 ) != 0); // enquanto o confere remoçao não retornar 0, ainda há registros a serem lidos
+
+
+    free(novo_reg_dados1);
+    free(novo_reg_cabecalho1);
+    free(novo_reg_dados2);
+    free(novo_reg_cabecalho2);
+    free(novo_reg_cabecalho_arvore);
+    free(novo_reg_indice);
+    fclose(arquivo_dados1);
+    fclose(arquivo_dados2);
+    fclose(arquivo_indice);
 }
+
+int juncao(reg_dados* reg1, FILE* arquivo_entrada, reg_cabecalho_arvore* cabecalho_arvore, reg_dados_indice* reg_indice, FILE* arquivo_procura, FILE* arquivo_indice, reg_dados*reg_procura){
+
+    int num_RRN = -1;
+    int status = le_arquivo(reg1, arquivo_entrada, &num_RRN);
+
+
+    if(status==1){//nao é o fim do arquivo
+        
+        int flag_busca=0;
+
+        flag_busca = busca_indexada(reg1->idPoPsConectado, cabecalho_arvore, reg_indice, arquivo_procura, arquivo_indice, reg_procura, &num_RRN);
+        
+    
+        if (flag_busca == ENCONTRADO){
+          if (reg1->removido[0] == '0') printa_juncao(reg1, reg_procura);//registro não removido
+        }
+        return status;
+    }
+    else return status;
+}
+
+void printa_juncao(reg_dados* reg1, reg_dados* reg2){
+
+    printf("Identificador do ponto: %d\n", reg1->idConecta);
+    if(reg1->nomePoPs[0] != '\0') printf("Nome do ponto: %s\n", reg1->nomePoPs);//confere se não é nulo
+    if(reg1->nomePais[0] != '\0') printf("Pais de localizacao: %s\n", reg1->nomePais);
+    if(reg1->siglaPais[0] != '$') printf("Sigla do pais: %s\n", reg1->siglaPais);
+    if(reg1->idPoPsConectado != -1) printf("Identificador do ponto conectado: %d\n", reg1->idPoPsConectado);
+    if(reg2->nomePoPs[0] != '\0') printf("Nome do ponto: %s\n", reg2->nomePoPs);//confere se não é nulo
+    if(reg2->nomePais[0] != '\0') printf("Pais de localizacao: %s\n", reg2->nomePais);
+    if(reg2->siglaPais[0] != '$') printf("Sigla do pais: %s\n", reg2->siglaPais);
+    if(reg1->velocidade != -1) printf("Velocidade de transmissao: %d %sbps\n", reg1->velocidade, reg1->unidadeMedida);
+    printf("\n");
+}
+

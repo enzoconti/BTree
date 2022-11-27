@@ -82,11 +82,8 @@ int _busca_arvore(int RRN, int *pos, reg_dados_indice *reg_arvore_encontrado, in
  * @param arquivo_indice Ponteiro para o arquivo de índice
  * @param novo_reg_dados Ponteiro para registro de dados que armazenará as informações do registro encontrado no arquivo de dados
  */
-void busca_indexada(int valor, int* num_registros_encontrados, reg_cabecalho_arvore *novo_reg_cabecalho_arvore, reg_dados_indice *novo_reg_encontrado, FILE* arquivo_dados, FILE* arquivo_indice, reg_dados *novo_reg_dados, int* num_paginas_lidas){
+int busca_indexada(int valor, reg_cabecalho_arvore *novo_reg_cabecalho_arvore, reg_dados_indice *novo_reg_encontrado, FILE* arquivo_dados, FILE* arquivo_indice, reg_dados *novo_reg_dados, int* num_paginas_lidas){
     int pos = 0;//posicao no arquivo de indice
-
-    scanf("%d", &valor);
-    *num_registros_encontrados = 0;
 
     int flag_retorno = busca_arvore(novo_reg_cabecalho_arvore, &pos, novo_reg_encontrado, valor, arquivo_indice, num_paginas_lidas);
 
@@ -98,14 +95,10 @@ void busca_indexada(int valor, int* num_registros_encontrados, reg_cabecalho_arv
         le_registro(novo_reg_dados, arquivo_dados);
         (*num_paginas_lidas)++;//contar a leitura do registro de dados do arquivo de dados
 
-        if (novo_reg_dados->removido[0] != '1'){
-            printa_registro(novo_reg_dados);
-            (*num_registros_encontrados)++;
-        }
-        else{
-            if (*num_registros_encontrados == 0) print_registro_inexistente();
-        }
+        return ENCONTRADO;
     }
+
+    return NAO_ENCONTRADO;
 }
 
 // funcao master que chama a recursao da insercao da btree
